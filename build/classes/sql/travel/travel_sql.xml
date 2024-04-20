@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="travel">
+	<resultMap type="com.spring.board.vo.ClientInfoVo" id="clientInfoVo">
+		<result property="userName" column="USER_NAME"/>
+		<result property="userPhone" column="USER_PHONE"/>
+		<result property="traveCity" column="TRAVE_CITY"/>
+		<result property="period" column="PERIOD"/>
+		<result property="expend" column="EXPEND"/>
+		<result property="transport" column="TRANSPORT"/>
+	</resultMap>
+	
+	<resultMap type="com.spring.board.vo.TraveInfoVo" id="traveInfoVo">
+		<result property="seq" column="SEQ"/>
+		<result property="traveDay" column="TRAVE_DAY"/>
+		<result property="traveTime" column="TRAVE_TIME"/>
+		<result property="traveCity" column="TRAVE_CITY"/>
+		<result property="traveCounty" column="TRAVE_COUNTY"/>
+		<result property="traveLoc" column="TRAVE_LOC"/>
+		<result property="traveTrans" column="TRAVE_TRANS"/>
+		<result property="transTime" column="TRANS_TIME"/>
+		<result property="useTime" column="USE_TIME"/>
+		<result property="useExpend" column="USE_EXPEND"/>
+		<result property="travelDetail" column="TRAVE_DETAIL"/>
+		<result property="request" column="REQUEST"/>
+	</resultMap>
+
+	<select id="getSeq" parameterType="com.spring.board.vo.ClientInfoVo" resultType="String">
+		SELECT
+			SEQ
+		FROM
+			CLIENT_INFO
+		WHERE
+			USER_NAME = #{userName} AND
+			USER_PHONE = #{userPhone}
+	</select>
+	<insert id="insertClient" parameterType="com.spring.board.vo.ClientInfoVo">
+		INSERT INTO
+		CLIENT_INFO
+		(
+		SEQ,
+		USER_NAME,
+		USER_PHONE,
+		TRAVE_CITY,
+		PERIOD,
+		EXPEND,
+		TRANSPORT
+		)
+		VALUES
+		(
+		(SELECT NVL(TO_NUMBER(MAX(TO_NUMBER(SEQ)) +1),1)FROM CLIENT_INFO),
+		#{userName},
+		#{userPhone},
+		#{traveCity},
+		#{period},
+		#{expend},
+		#{transport}
+		)			
+	</insert>
+	<select id="selectAllClientList" resultMap="clientInfoVo">
+		SELECT * FROM CLIENT_INFO
+	</select>
+	
+	
+	<select id="selectPeriodBySeq" parameterType="Integer" resultType="String">
+		SELECT 
+			PERIOD 
+		FROM 
+			CLIENT_INFO 
+		WHERE SEQ = #{seq}
+	</select>
+	<select id="selectTraveListBySeqAndDay" parameterType="com.spring.board.vo.TraveInfoVo" resultMap="traveInfoVo">
+		SELECT 
+			*
+		FROM 
+			TRAVE_INFO
+		WHERE
+			SEQ = #{seq} AND
+			TRAVE_DAY = #{traveDay}
+	</select>
+	<delete id="delTraveBySeqAndDay" parameterType="com.spring.board.vo.TraveInfoVo">
+		DELETE
+			TRAVE_INFO
+		WHERE
+			SEQ = #{seq} AND
+			TRAVE_DAY = #{traveDay}
+	</delete>
+	<insert id="insertTraveList" parameterType="java.util.List">
+		INSERT INTO
+		TRAVE_INFO
+		(
+		TRAVE_SEQ,
+		SEQ,
+		TRAVE_DAY,
+		TRAVE_TIME,
+		TRAVE_CITY,
+		TRAVE_COUNTY,
+		TRAVE_LOC,
+		TRAVE_TRANS,
+		TRANS_TIME,
+		USE_TIME,
+		USE_EXPEND,
+		TRAVE_DETAIL,
+		REQUEST
+		)
+		<foreach collection="list" item="item" index="index" separator="UNION ALL">
+		(
+		SELECT
+			(SELECT NVL(TO_NUMBER(MAX(TO_NUMBER(TRAVE_SEQ))+#{index} +1),#{index}+1) FROM TRAVE_INFO),
+			#{seq},
+			#{traveDay},
+			#{traveTime},
+			#{traveCity},
+			#{traveCounty},
+			#{traveLoc},
+			#{traveTrans},
+			#{transTime},
+			#{useTime},
+			#{useExpend},
+			#{travelDetail},
+			'C'
+		FROM
+			DUAL
+		)
+		</foreach>
+	</insert>
+	<select id="selectClientInfo" resultMap="clientInfoVo">
+		SELECT
+			*
+		FROM
+			CLIENT_INFO
+		WHERE
+			USER_NAME = #{userName} AND
+			USER_PHONE = #{userPhone}
+	</select>
+	<update id="updateRequest" parameterType="Integer">
+		UPDATE
+			TRAVE_INFO
+		SET
+			REQUEST = 'M'
+		WHERE
+			SEQ = #{seq}
+	</update>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</mapper>

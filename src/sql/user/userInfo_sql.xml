@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="userInfo">
+
+	<resultMap type="com.spring.board.vo.UserInfoVo" id="userInfoVo">
+		<result property="userId" column="USER_ID"/>
+		<result property="userPw" column="USER_PW"/>
+		<result property="userName" column="USER_NAME"/>
+	</resultMap>
+	
+	<select id="userInsert" parameterType="com.spring.board.vo.UserInfoVo">
+		INSERT INTO 
+		USER_INFO 
+		(
+		USER_ID
+		,USER_PW
+		,USER_NAME
+		,USER_PHONE1
+		,USER_PHONE2
+		,USER_PHONE3
+		,USER_ADDR1
+		,USER_ADDR2
+		,USER_COMPANY
+		,CREATOR
+		,CREATE_TIME
+		,MODIFIER
+		,MODIFIED_TIME
+		)
+		VALUES
+		(
+		#{userId}
+		,#{userPw}
+		,#{userName}
+		,#{userPhone1}
+		,#{userPhone2}
+		,#{userPhone3}
+		,#{userAddr1}
+		,#{userAddr2}
+		,#{userCompany}
+		,'SYSTEM'
+		,TO_CHAR(SYSDATE)
+        ,'SYSTEM'
+        ,TO_CHAR(SYSDATE)
+		)
+	</select>
+	
+	<select id="checkId" parameterType="com.spring.board.vo.UserInfoVo" resultType="Integer">
+		SELECT 
+			CASE WHEN COUNT(*) = 0
+			THEN 1 ELSE 0 END AS RESULT
+		FROM USER_INFO
+		WHERE USER_ID = #{userId}
+	</select>
+	
+	<select id="login" parameterType="com.spring.board.vo.UserInfoVo" resultMap="userInfoVo">
+		SELECT 
+			USER_ID, USER_NAME
+		FROM USER_INFO	
+		WHERE USER_ID = #{userId} 
+  		AND USER_PW = #{userPw}
+	</select>
+</mapper>

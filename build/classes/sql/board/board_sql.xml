@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="board">
+    
+    <resultMap type="com.spring.board.vo.BoardVo" id="boardVo">
+    	<result property="codeName" 	column="CODE_NAME"/>
+    	<result property="boardType" 	column="BOARD_TYPE"/>
+    	<result property="boardNum" 	column="BOARD_NUM"/>
+    	<result property="boardTitle" 	column="BOARD_TITLE"/>
+    	<result property="boardComment" column="BOARD_COMMENT"/>
+    	<result property="totalCnt" 	column="TOTAL_CNT"/>
+    </resultMap>
+    
+    <resultMap type="com.spring.board.vo.CodeInfoVo" id="codeInfoVo">
+    	<result property="codeType" column="CODE_TYPE"/>
+    	<result property="codeId" column="CODE_ID"/>
+    	<result property="codeName" column="CODE_NAME"/>
+    </resultMap>
+    
+    <select id="boardList" parameterType="com.spring.board.vo.PageVo" resultMap="boardVo">
+      	SELECT
+      		CODE_NAME
+      		,BOARD_TYPE
+      		,BOARD_NUM
+			,BOARD_TITLE
+			,BOARD_COMMENT
+			,TOTAL_CNT
+      	FROM
+      	(
+		  SELECT
+		  		CODE_NAME
+		      	,BOARD_TYPE
+				,BOARD_NUM
+				,BOARD_TITLE
+				,BOARD_COMMENT
+		      	,ROW_NUMBER() OVER(ORDER BY BOARD_NUM DESC) AS NUMROW
+		      	,COUNT(*) OVER() AS TOTAL_CNT
+			FROM
+				BOARD B
+   			JOIN COM_CODE C ON B.BOARD_TYPE = C.CODE_ID
+	   	) 
+		WHERE NUMROW BETWEEN (#{pageNo}-1)*10 + 1 AND (#{pageNo})*10
+    </select>
+    
+    <select id="boardListByboardType" parameterType="com.spring.board.vo.PageVo"  resultMap="boardVo">
+    	SELECT
+      		CODE_NAME
+      		,BOARD_TYPE
+      		,BOARD_NUM
+			,BOARD_TITLE
+			,BOARD_COMMENT
+			,TOTAL_CNT
+      	FROM
+      	(
+		  SELECT
+		  		CODE_NAME
+		      	,BOARD_TYPE
+				,BOARD_NUM
+				,BOARD_TITLE
+				,BOARD_COMMENT
+		      	,ROW_NUMBER() OVER(ORDER BY BOARD_NUM DESC) AS NUMROW
+		      	,COUNT(*) OVER() AS TOTAL_CNT
+			FROM
+				BOARD B 
+			JOIN COM_CODE C ON B.BOARD_TYPE = C.CODE_ID
+			WHERE	C.CODE_ID IN
+	    	<foreach item="boardType" collection="boardTypes" open="(" separator="," close=")">
+			        #{boardType}
+		    </foreach>	
+	   	) 
+		WHERE NUMROW BETWEEN (#{pageNo}-1)*10 + 1 AND (#{pageNo})*10
+    	
+    </select>
+
+    <select id="boardTotal" parameterType="Integer" resultType="Integer">
+		  SELECT
+		      	COUNT(*) AS TOTAL_CNT
+			FROM
+				BOARD	
+    </select>
+    	
+    <select id="boardView" parameterType="com.spring.board.vo.BoardVo" resultMap="boardVo">
+    	SELECT
+        	BOARD_TYPE
+			,BOARD_NUM
+			,BOARD_TITLE
+			,BOARD_COMMENT
+			,CREATOR
+		FROM
+			BOARD
+    	WHERE 	BOARD_TYPE = #{boardType}
+    	AND 	BOARD_NUM  = #{boardNum}
+    </select>	
+    
+    <select id="codeInfo" parameterType="com.spring.board.vo.CodeInfoVo" resultMap="codeInfoVo">
+    	SELECT
+    		CODE_ID
+    		,CODE_NAME
+   		FROM
+   			COM_CODE
+ 		WHERE CODE_TYPE = #{codeType}
+   			
+    </select>
+    
+    <select id="boardInsert" parameterType="com.spring.board.vo.BoardVo">
+        INSERT INTO 
+        BOARD
+        (BOARD_TYPE
+        ,BOARD_NUM
+        ,BOARD_TITLE
+        ,BOARD_COMMENT
+        ,CREATOR
+        ,CREATE_TIME
+        ,MODIFIER
+        ,MODIFIED_TIME
+        )
+        VALUES
+        (#{boardType}
+        ,(SELECT NVL(TO_NUMBER(MAX(BOARD_NUM)+1),1)
+	    FROM BOARD
+	    WHERE BOARD_TYPE = #{boardType})
+        ,#{boardTitle}
+        ,#{boardComment}
+        ,#{creator}
+        ,TO_CHAR(SYSDATE)
+        ,'SYSTEM'
+        ,TO_CHAR(SYSDATE)
+        )
+    </select>
+    
+    <update id="boardUpdate" parameterType="com.spring.board.vo.BoardVo" >
+    	UPDATE
+    		BOARD
+    	SET
+        	BOARD_TITLE = #{boardTitle},
+        	BOARD_COMMENT = #{boardComment},
+        	MODIFIED_TIME = TO_CHAR(SYSDATE)
+    
+    	WHERE	BOARD_TYPE = #{boardType}
+    	AND 	BOARD_NUM  = #{boardNum}
+    </update>
+    
+    <delete id="boardDelete" parameterType="com.spring.board.vo.BoardVo">
+    	Delete
+    	FROM
+    		BOARD
+   		WHERE	BOARD_TYPE = #{boardType}
+    	AND 	BOARD_NUM  = #{boardNum}
+    </delete>
+ <!--************************************ MBTI ******************************** --> 
+    
+    <select id="question" parameterType="com.spring.board.vo.PageVo" resultMap="boardVo">
+    	SELECT 
+			BOARD_TYPE
+			,BOARD_COMMENT
+		FROM
+			(
+			SELECT
+				BOARD_TYPE
+				,BOARD_COMMENT
+				,ROW_NUMBER() OVER(ORDER BY BOARD_TYPE) AS NUMROW
+			FROM
+				BOARD
+			WHERE
+				BOARD_TITLE = 'MBTI'
+			)
+		WHERE
+			NUMROW BETWEEN (#{pageNo}-1)*5 + 1 AND (#{pageNo})*5
+    </select>
+    
+    <select id="mbtiTypes" resultType="String">
+    	SELECT DISTINCT
+    		BOARD_TYPE
+   		FROM
+   			BOARD
+		WHERE
+			BOARD_TITLE = 'MBTI'
+		ORDER BY BOARD_TYPE
+    </select>
+    
+        
+</mapper>

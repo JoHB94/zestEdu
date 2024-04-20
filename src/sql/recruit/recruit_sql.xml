@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="recruit">
+	
+	<resultMap type="com.spring.board.vo.RecruitVo" id="recruitVo">
+		<result property="name" column="NAME"/>
+		<result property="birth" column="BIRTRH"/>
+		<result property="gender" column="GENDER"/>
+		<result property="phone" column="PHONE"/>
+		<result property="email" column="EMAIL"/>
+		<result property="addr" column="ADDR"/>
+		<result property="location" column="LOCATION"/>
+		<result property="workType" column="WORK_TYPE"/>
+		<result property="submit" column="SUBMIT"/>
+		<result property="seq" column="SEQ"/>
+	</resultMap>
+	<resultMap type="com.spring.board.vo.EducationVo" id="educationVo">
+		<result property="schoolName" column="SCHOOL_NAME"/>
+		<result property="division" column="DIVISION"/>
+		<result property="startPeriod" column="START_PERIOD"/>
+		<result property="endPeriod" column="END_PERIOD"/>
+		<result property="major" column="MAJOR"/>
+		<result property="grade" column="GRADE"/>
+		<result property="location" column="LOCATION"/>
+		<result property="academicYears" column="ACADEMIC_YEARS"/>
+		<result property="eduSeq" column="EDU_SEQ"/>
+	</resultMap>
+	<resultMap type="com.spring.board.vo.CareerVo" id="careerVo">
+		<result property="compName" column="COMP_NAME"/>
+		<result property="location" column="LOCATION"/>
+		<result property="startPeriod" column="START_PERIOD"/>
+		<result property="endPeriod" column="END_PERIOD"/>
+		<result property="task" column="TASK"/>
+		<result property="salary" column="SALARY"/>
+		<result property="carSeq" column="CAR_SEQ"/>
+	</resultMap>
+	<resultMap type="com.spring.board.vo.CertificateVo" id="certificateVo">
+		<result property="qualifiName" column="QUALIFI_NAME"/>
+		<result property="acquDate" column="ACQU_DATE"/>
+		<result property="organizeName" column="ORGANIZE_NAME"/>
+		<result property="certSeq" column="CERT_SEQ"/>
+	</resultMap>
+	<select id="getSeq" parameterType="com.spring.board.vo.RecruitVo" resultType="String">
+		SELECT 
+			SEQ 
+		FROM
+			RECRUIT
+		WHERE
+			NAME = #{name} AND
+			PHONE = #{phone}
+	</select>
+	
+	<select id="getCareerMonth" parameterType="com.spring.board.vo.RecruitVo" resultType="String">
+		SELECT
+			 SUM(ROUND(MONTHS_BETWEEN(TO_DATE(C.END_PERIOD, 'YYYY-MM'), TO_DATE(C.START_PERIOD, 'YYYY-MM')))+1) AS TOTAL_MONTHS
+		FROM
+			RECRUIT R 
+			JOIN CAREER C ON R.SEQ = C.SEQ
+		WHERE
+			R.NAME = #{name} AND
+			R.PHONE = #{phone}
+	</select>
+	
+	<select id="getSchoolYear" parameterType="com.spring.board.vo.RecruitVo" resultMap="educationVo">
+		SELECT * FROM (
+				
+			SELECT 
+			    ROUND(MONTHS_BETWEEN(TO_DATE(E.END_PERIOD, 'YYYY-MM'), TO_DATE(E.START_PERIOD, 'YYYY-MM'))+1) AS ACADEMIC_YEARS,
+			    E.DIVISION
+			FROM 
+			    RECRUIT R 
+			    JOIN EDUCATION E ON R.SEQ = E.SEQ
+			WHERE 
+			    R.NAME = #{name} 
+			    AND R.PHONE = #{phone}
+			ORDER BY 
+			    CASE E.DIVISION
+			        WHEN '졸업' THEN 1
+			        WHEN '재학' THEN 2
+			        WHEN '중퇴' THEN 3
+			        ELSE 4
+			    END,
+			    ACADEMIC_YEARS DESC
+	    )WHERE ROWNUM =1
+	</select>
+	
+	<select id="selectRecruit" parameterType="com.spring.board.vo.RecruitVo" resultMap="recruitVo">
+		SELECT
+			NAME,
+			BIRTH,
+			GENDER,
+			PHONE,
+			EMAIL,
+			ADDR,
+			LOCATION,
+			WORK_TYPE,
+			SUBMIT,
+			SEQ
+		FROM
+			RECRUIT
+		WHERE
+			NAME = #{name} AND
+			PHONE = #{phone}
+	</select>
+	<select id="selectEducation" parameterType="com.spring.board.vo.RecruitVo" resultMap="educationVo">
+		SELECT
+			E.SCHOOL_NAME,
+			E.DIVISION,
+			E.START_PERIOD,
+			E.END_PERIOD,
+			E.MAJOR,
+			E.GRADE,
+			E.LOCATION,
+			E.EDU_SEQ
+		FROM
+			EDUCATION E
+			JOIN RECRUIT R ON E.SEQ = R.SEQ
+		WHERE
+			R.NAME = #{name} AND
+			R.PHONE = #{phone}
+	</select>
+	<select id="selectCareer" parameterType="com.spring.board.vo.RecruitVo" resultMap="careerVo">
+		SELECT
+			C.COMP_NAME,
+			C.LOCATION,
+			C.START_PERIOD,
+			C.END_PERIOD,
+			C.TASK,
+			C.CAR_SEQ
+		FROM
+			CAREER C
+			JOIN RECRUIT R ON C.SEQ = R.SEQ
+		WHERE
+			R.NAME = #{name} AND
+			R.PHONE = #{phone}
+	</select>
+	<select id="selectCertificate" parameterType="com.spring.board.vo.RecruitVo" resultMap="certificateVo">
+		SELECT
+			C.QUALIFI_NAME,
+			C.ACQU_DATE,
+			C.ORGANIZE_NAME,
+			C.CERT_SEQ
+		FROM
+			CERTIFICATE C
+			JOIN RECRUIT R ON C.SEQ = R.SEQ
+		WHERE
+			R.NAME = #{name} AND
+			R.PHONE = #{phone}
+	</select>
+	
+	<insert id="recruitInsert" parameterType="com.spring.board.vo.RecruitVo">
+		INSERT INTO
+		RECRUIT
+		(
+		SEQ,
+		NAME,
+		BIRTH,
+		GENDER,
+		PHONE,
+		EMAIL,
+		ADDR,
+		LOCATION,
+		WORK_TYPE,
+		SUBMIT
+		)
+		VALUES
+		(
+		(SELECT NVL(TO_NUMBER(MAX(TO_NUMBER(SEQ)) +1),1)FROM RECRUIT),
+		#{name},
+		#{birth},
+		#{gender},
+		#{phone},
+		#{email},
+		#{addr},
+		#{location},
+		#{workType},
+		#{submit}
+		)
+	</insert>
+	
+	<insert id="educationInsert" parameterType="java.util.List">
+		INSERT INTO
+		EDUCATION
+		(
+		EDU_SEQ
+		,SEQ
+		,SCHOOL_NAME
+		,DIVISION
+		,START_PERIOD
+		,END_PERIOD
+		,MAJOR
+		,GRADE
+		,LOCATION
+		)
+		
+		<foreach collection="list" item="item" index="index"  separator="UNION ALL"  >
+		(	
+		SELECT
+			(SELECT NVL(TO_NUMBER(MAX(TO_NUMBER(EDU_SEQ))+#{index} +1),#{index}+1)
+			FROM EDUCATION)
+			,#{item.seq}
+			,#{item.schoolName}
+			,#{item.division}
+			,#{item.startPeriod}
+			,#{item.endPeriod}
+			,#{item.major}
+			,#{item.grade}
+			,#{item.location}
+		FROM
+			DUAL
+		)
+		</foreach>					
+	</insert>
+	
+	<insert id="careerInsert" parameterType="java.util.List">
+		INSERT INTO
+		CAREER
+		(
+		CAR_SEQ
+		,SEQ
+		,COMP_NAME
+		,LOCATION
+		,START_PERIOD
+		,END_PERIOD
+		,TASK
+		,SALARY
+		)
+		<foreach collection="list" item="item" index="index" separator="UNION ALL">
+		(
+		SELECT
+			(SELECT NVL(TO_NUMBER(MAX(TO_NUMBER(CAR_SEQ))+#{index} +1),#{index}+1)
+			FROM CAREER)
+			,#{item.seq}
+			,#{item.compName}
+			,#{item.location}
+			,#{item.startPeriod}
+			,#{item.endPeriod}
+			,#{item.task}
+			,'회사내규에 따름'
+		FROM
+			DUAL
+		)
+		</foreach>
+	</insert>
+	
+	<insert id="certificateInsert" parameterType="java.util.List">
+		INSERT INTO
+		CERTIFICATE
+		(
+		CERT_SEQ
+		,SEQ
+		,QUALIFI_NAME
+		,ACQU_DATE
+		,ORGANIZE_NAME
+		)
+		<foreach collection="list" item="item" index="index" separator="UNION ALL">
+		(	
+		SELECT
+			(SELECT NVL(TO_NUMBER(MAX(TO_NUMBER(CERT_SEQ))+#{index} +1),#{index}+1)
+			FROM CERTIFICATE)
+			,#{item.seq}
+			,#{item.qualifiName}
+			,#{item.acquDate}
+			,#{item.organizeName}
+		FROM
+			DUAL
+		)
+		</foreach>
+	</insert>
+	
+	<delete id="recruitDelBySeq" parameterType="String">
+		DELETE
+			RECRUIT
+		WHERE
+			SEQ = #{seq}
+	</delete>
+	<delete id="eduDelBySeq" parameterType="String">
+		DELETE
+			EDUCATION
+		WHERE
+			SEQ = #{seq}
+	</delete>
+	<delete id="carDelBySeq" parameterType="String">
+		DELETE
+			CAREER
+		WHERE
+			SEQ = #{seq}
+	</delete>
+	<delete id="certDelBySeq" parameterType="String">
+		DELETE
+			CERTIFICATE
+		WHERE
+			SEQ = #{seq}
+	</delete>
+	
+</mapper>
