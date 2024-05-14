@@ -1,10 +1,10 @@
-<%@ page language="java" contentType="text/html; charset=EUC-KR"
-    pageEncoding="EUC-KR"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <%@include file="/WEB-INF/views/common/common.jsp"%>    
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
+<meta>
 <title>boardUpdate</title>
 </head>
 <script type="text/javascript">
@@ -14,7 +14,7 @@
 		$j("#submit").on("click",function(){
 			var $frm = $j('.boardUpdate :input');
 			var param = $frm.serialize();
-			//serialize():Äõ¸®½ºÆ®¸µÀ¸·Î ¸¸µé¾îÁÜ
+			//serialize():ì¿¼ë¦¬ìŠ¤íŠ¸ë§ìœ¼ë¡œ ë§Œë“¤ì–´ì¤Œ
 			$j.ajax({
 			    url : "/board/boardUpdateAction.do",
 			    dataType: "json",
@@ -24,16 +24,16 @@
 			    {	
 			    	var msg = data.success;
 			    	if(msg == "Y"){
-						alert("¼öÁ¤¿Ï·á.");		    		
+						alert("ìˆ˜ì •ì™„ë£Œ.");		    		
 			    	}else {
-			    		alert("¼öÁ¤°á°ú°¡ ¾ø½À´Ï´Ù.");
+			    		alert("ìˆ˜ì •ê²°ê³¼ê°€ ì—†ìŠµë‹ˆë‹¤.");
 			    	}
 					
 					location.href = "/board/boardList.do";
 			    },
 			    error: function (jqXHR, textStatus, errorThrown)
 			    {
-			    	alert("½ÇÆĞ");
+			    	alert("ì‹¤íŒ¨");
 			    }
 			});	
 		});
@@ -48,7 +48,7 @@
 	<table align="center">
 		<tr>
 			<td align="right">
-			<input id="submit" type="button" value="¼öÁ¤">
+			<input id="submit" type="button" value="ìˆ˜ì •">
 			</td>
 		</tr>
 		<tr>

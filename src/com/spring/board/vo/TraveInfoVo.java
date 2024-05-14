@@ -2,6 +2,7 @@ package com.spring.board.vo;
 
 public class TraveInfoVo {
 	
+	private String traveSeq;
 	private String seq;
 	private String traveDay;
 	private String traveTime;
@@ -12,7 +13,7 @@ public class TraveInfoVo {
 	private String transTime;
 	private String useTime;
 	private String useExpend;
-	private String travelDetail;
+	private String traveDetail;
 	private String request;
 	
 	
@@ -26,8 +27,17 @@ public class TraveInfoVo {
 	public TraveInfoVo() {
 		super();
 	}
+	
+	
 
 
+	public String getTraveSeq() {
+		return traveSeq;
+	}
+
+	public void setTraveSeq(String traveSeq) {
+		this.traveSeq = traveSeq;
+	}
 
 	public String getSeq() {
 		return seq;
@@ -89,25 +99,31 @@ public class TraveInfoVo {
 	public void setUseExpend(String useExpend) {
 		this.useExpend = useExpend;
 	}
-	public String getTravelDetail() {
-		return travelDetail;
+	
+	public String getTraveDetail() {
+		return traveDetail;
 	}
-	public void setTravelDetail(String travelDetail) {
-		this.travelDetail = travelDetail;
+
+	public void setTraveDetail(String traveDetail) {
+		this.traveDetail = traveDetail;
 	}
+
 	public String getRequest() {
 		return request;
 	}
 	public void setRequest(String request) {
 		this.request = request;
 	}
+
 	@Override
 	public String toString() {
-		return "TraveInfo [seq=" + seq + ", traveDay=" + traveDay + ", traveTime=" + traveTime + ", traveCity="
-				+ traveCity + ", traveCounty=" + traveCounty + ", traveLoc=" + traveLoc + ", traveTrans=" + traveTrans
-				+ ", transTime=" + transTime + ", useTime=" + useTime + ", useExpend=" + useExpend + ", travelDetail="
-				+ travelDetail + ", request=" + request + "]";
+		return "TraveInfoVo [traveSeq=" + traveSeq + ", seq=" + seq + ", traveDay=" + traveDay + ", traveTime="
+				+ traveTime + ", traveCity=" + traveCity + ", traveCounty=" + traveCounty + ", traveLoc=" + traveLoc
+				+ ", traveTrans=" + traveTrans + ", transTime=" + transTime + ", useTime=" + useTime + ", useExpend="
+				+ useExpend + ", traveDetail=" + traveDetail + ", request=" + request + "]";
 	}
+
+
 	
-	
+		
 }

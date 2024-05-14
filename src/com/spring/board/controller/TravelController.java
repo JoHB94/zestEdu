@@ -1,5 +1,6 @@
 package com.spring.board.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -18,10 +19,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.spring.board.HomeController;
 import com.spring.board.service.TravelService;
 import com.spring.board.vo.ClientInfoVo;
+import com.spring.board.vo.ReqUpdateDTO;
+import com.spring.board.vo.TraveDTO;
 import com.spring.board.vo.TraveInfoVo;
 
 @Controller
@@ -76,6 +80,7 @@ public class TravelController {
 	}
 	
 	@RequestMapping(value = "/travel/getPeriodAction.do",method = RequestMethod.POST)
+	@ResponseBody
 	public ResponseEntity<Map<String,Object>> getPeriod(Locale locale,
 			@RequestBody int seq) throws Exception{
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -89,6 +94,7 @@ public class TravelController {
 	
 	
 	@RequestMapping(value = "/travel/detailTraveList.do",method = RequestMethod.POST)
+	@ResponseBody
 	public ResponseEntity<Map<String,Object>> getDetailTraveList(Locale locale,Model model,
 			@RequestBody TraveInfoVo traveInfoVo) throws Exception{
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -100,21 +106,52 @@ public class TravelController {
 		return new ResponseEntity<Map<String,Object>>(result,HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/travel/clientPage.do",method = RequestMethod.GET)
-	public String clientPage(Locale locale, Model model,
-			@RequestBody ClientInfoVo clientInfoVo) throws Exception{
-		
-		ClientInfoVo resultInfo = travelService.selectClientInfo(clientInfoVo);
-		
-		model.addAttribute("clientInfoVo", resultInfo);
-		return "travel/clientPage";
-	}
-	
-	public ResponseEntity<Map<String,Object>> updateRequest(Locale locale,
-			@RequestBody List<TraveInfoVo> updateList) throws Exception {
+	@RequestMapping(value = "/travel/saveTraveList.do", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Map<String,Object>> insertTravelList(Locale locale,
+			@RequestBody TraveDTO traveDTO)throws Exception{
 		Map<String, Object> result = new HashMap<String, Object>();
 		
-		int resultCnt = travelService.updateRequest(updateList);
+		int resultCnt = travelService.saveDetailschedule(traveDTO);		
+		result.put("success",(resultCnt > 0)?"N":"Y");
+		
+		return new ResponseEntity<Map<String,Object>>(result,HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/travel/clientPage.do",method = RequestMethod.GET)
+	public String clientPage(Locale locale, Model model, HttpServletRequest request) throws Exception{
+		HttpSession session = request.getSession();
+		String userName = (String) session.getAttribute("userName");
+		String userPhone = (String) session.getAttribute("userPhone");
+		
+		if(userName != null && userPhone != null) {
+			ClientInfoVo loginInfo = new ClientInfoVo();
+			loginInfo.setUserName(userName);
+			loginInfo.setUserPhone(userPhone);
+			
+			ClientInfoVo resultInfo = travelService.selectClientInfo(loginInfo);
+			int seq = Integer.parseInt(resultInfo.getSeq());
+			String period = travelService.selectPeriod(seq);
+			
+			model.addAttribute("clientInfoVo", resultInfo);
+			model.addAttribute("period", period);
+			return "travel/clientPage";			
+		}else {
+			return "travel/login";
+		}
+	}
+	
+	@RequestMapping(value = "/travel/updateRequest.do", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Map<String,Object>> updateRequest(Locale locale,
+			@RequestBody ReqUpdateDTO reqList) throws Exception {
+		Map<String, Object> result = new HashMap<String, Object>();
+		System.out.println(reqList.toString());
+		
+		//List<TraveInfoVo> traveList = new ArrayList();
+		//traveList = reqList.getTraveList();
+		
+		int resultCnt = travelService.updateRequest(reqList);
 		result.put("success", (resultCnt > 0)?"Y":"N");
 		
 		return new ResponseEntity<Map<String,Object>>(result,HttpStatus.OK);

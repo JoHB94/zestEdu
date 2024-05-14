@@ -10,8 +10,32 @@ public class ClientInfoVo {
 	private String expend;
 	private String transport;
 	
+	private String sumExpend;
+	//totalTransFee = 교통비와 렌트비를 모두 합친 총 교통비용
+	private double totalTransFee;
+	private int estimatedExpenses;
 	
+	public int getEstimatedExpenses() {
+		return estimatedExpenses;
+	}
+
+
+	public void setEstimatedExpenses(int estimatedExpenses) {
+		this.estimatedExpenses = estimatedExpenses;
+	}
 	
+	public double getTotalTransFee() {
+		return totalTransFee;
+	}
+	public void setTotalTransFee(double totalTransFee) {
+		this.totalTransFee = totalTransFee;
+	}
+	public String getSumExpend() {
+		return sumExpend;
+	}
+	public void setSumExpend(String sumExpend) {
+		this.sumExpend = sumExpend;
+	}
 	public String getSeq() {
 		return seq;
 	}
@@ -54,13 +78,13 @@ public class ClientInfoVo {
 	public void setTransport(String transport) {
 		this.transport = transport;
 	}
+
+
 	@Override
 	public String toString() {
 		return "ClientInfoVo [seq=" + seq + ", userName=" + userName + ", userPhone=" + userPhone + ", traveCity="
-				+ traveCity + ", period=" + period + ", expend=" + expend + ", transport=" + transport + "]";
+				+ traveCity + ", period=" + period + ", expend=" + expend + ", transport=" + transport + ", sumExpend="
+				+ sumExpend + ", totalTransFee=" + totalTransFee + ", estimatedExpenses=" + estimatedExpenses + "]";
 	}
 
-	
-	
-	
 }

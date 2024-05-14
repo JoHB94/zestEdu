@@ -1,10 +1,10 @@
-<%@ page language="java" contentType="text/html; charset=EUC-KR"
-    pageEncoding="EUC-KR"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <%@include file="/WEB-INF/views/common/common.jsp"%>    
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
+<meta>
 <title>boardView</title>
 </head>
 <script type="text/javascript">
@@ -14,14 +14,14 @@
 			var userName= '${sessionScope.userName}';
 			var creator	= '${board.creator}'; 
 			if(userName === '' ){
-				var res = confirm("·Î±×ÀÎÀÌ ÇÊ¿äÇÕ´Ï´Ù. \n·Î±×ÀÎ ÆäÀÌÁö·Î ÀÌµ¿ÇÏ½Ã°Ú½À´Ï±î?");
+				var res = confirm("ë¡œê·¸ì¸ì´ í•„ìš”í•©ë‹ˆë‹¤. \në¡œê·¸ì¸ í˜ì´ì§€ë¡œ ì´ë™í•˜ì‹œê² ìŠµë‹ˆê¹Œ?");
 				if(res){
 					window.location.href = "/board/login.do";
 				}else{
 					return;
 				}
 			}else if(userName !== creator){
-				alert("ÀÛ¼ºÀÚ¸¸ ¼öÁ¤ÇÒ ¼ö ÀÖ½À´Ï´Ù.");
+				alert("ì‘ì„±ìë§Œ ìˆ˜ì •í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.");
 				return;
 			}else {
 				window.location.href = "/board/${boardType}/${boardNum}/boardUpdate.do";				
@@ -34,21 +34,21 @@
 			var userName= '${sessionScope.userName}';
 			var creator	= '${board.creator}'; 
 			if(userName === '' ){
-				var res = confirm("·Î±×ÀÎÀÌ ÇÊ¿äÇÕ´Ï´Ù. \n·Î±×ÀÎ ÆäÀÌÁö·Î ÀÌµ¿ÇÏ½Ã°Ú½À´Ï±î?");
+				var res = confirm("ë¡œê·¸ì¸ì´ í•„ìš”í•©ë‹ˆë‹¤. \në¡œê·¸ì¸ í˜ì´ì§€ë¡œ ì´ë™í•˜ì‹œê² ìŠµë‹ˆê¹Œ?");
 				if(res){
 					window.location.href = "/board/login.do";
 				}else{
 					return;
 				}
 			}else if(userName !== creator){
-				alert("ÀÛ¼ºÀÚ¸¸ »èÁ¦ÇÒ ¼ö ÀÖ½À´Ï´Ù.");
+				alert("ì‘ì„±ìë§Œ ì‚­ì œí•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.");
 				return;
 			}else {
 				var $frm = $j('.boardDelete :input');
 				var param = $frm.serialize();
 				
 				console.log("param : " + param);
-				//serialize():Äõ¸®½ºÆ®¸µÀ¸·Î ¸¸µé¾îÁÜ
+				//serialize():ì¿¼ë¦¬ìŠ¤íŠ¸ë§ìœ¼ë¡œ ë§Œë“¤ì–´ì¤Œ
 				$j.ajax({
 				    url : "/board/boardDelete.do",
 				    dataType: "json",
@@ -56,15 +56,15 @@
 				    data : param,
 				    success: function(data, textStatus, jqXHR)
 				    {
-						alert("»èÁ¦¿Ï·á");
+						alert("ì‚­ì œì™„ë£Œ");
 						
-						alert("¸Ş¼¼Áö:"+data.success);
+						alert("ë©”ì„¸ì§€:"+data.success);
 						
 						location.href = "/board/boardList.do";
 				    },
 				    error: function (jqXHR, textStatus, errorThrown)
 				    {
-				    	alert("½ÇÆĞ");
+				    	alert("ì‹¤íŒ¨");
 				    }
 				});									
 			}

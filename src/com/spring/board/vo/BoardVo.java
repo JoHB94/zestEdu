@@ -10,7 +10,14 @@ public class BoardVo {
 	private String 	creator;
 	private String	modifier;
 	private int totalCnt;
+	private int endPage;
 	
+	public int getEndPage() {
+		return endPage;
+	}
+	public void setEndPage(int endPage) {
+		this.endPage = endPage;
+	}
 	public String getCodeName() {
 		return codeName;
 	}
@@ -62,10 +69,11 @@ public class BoardVo {
 	}
 	@Override
 	public String toString() {
-		return "BoardVo [boardType=" + boardType + ", boardNum=" + boardNum + ", boardTitle=" + boardTitle
-				+ ", boardComment=" + boardComment + ", creator=" + creator + ", modifier=" + modifier + ", totalCnt="
-				+ totalCnt + "]";
+		return "BoardVo [codeName=" + codeName + ", boardType=" + boardType + ", boardNum=" + boardNum + ", boardTitle="
+				+ boardTitle + ", boardComment=" + boardComment + ", creator=" + creator + ", modifier=" + modifier
+				+ ", totalCnt=" + totalCnt + ", endPage=" + endPage + "]";
 	}
+
 	
 	
 }

@@ -1,11 +1,17 @@
-<%@ page language="java" contentType="text/html; charset=EUC-KR"
-    pageEncoding="EUC-KR"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <%@include file="/WEB-INF/views/common/common.jsp"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
+<meta charset ="UTF-8">
 <title>list</title>
+<style type="text/css">
+	.current {
+  		background-color: highlight;
+  		color: white; 
+	}
+</style>
 </head>
 <script type="text/javascript">
 
@@ -27,31 +33,61 @@
 	}
 	
 	
+	
+	
 	$j(document).ready(function(){
-			
-		var boardTypes =[];
+		
+		var pageCnt = 5;
 		var menuSize = ${fn:length(code)};
+		var boardTypes =['a01','a02','a03','a04'];
+		var currentPage = ${currentPage};
+		var showPage = ${showPage};
+		var endPage = ${endPage};
+		console.log("í˜ì´ì§€ ë¡œë“œì‹œ boardTypes: " + boardTypes);
+		console.log("í˜ì´ì§€ ë¡œë“œì‹œ currentPage: " + currentPage);
+		console.log("í˜ì´ì§€ ë¡œë“œì‹œ endPage: " + endPage);
 		var userName = "${sessionScope.userName}";
 		
-		//´ÜÀÏ¹Ú½º¸¦ Å¬¸¯ÇÏ´Â °æ¿ì	
+		function buildPage(currentPage,showPage,endPage){
+			$j("#pageDiv").empty();
+			var pageHTML = "";
+			if(currentPage !== 1){
+				pageHTML += "<input type='button' id='preBtn' value='&lt;'>";				
+			}
+			
+			for(var i = currentPage; i < (currentPage + showPage); i ++){
+				if(i > endPage){
+					break;
+				}				
+	            pageHTML += "<input type='button' id='btn"+i+"' value='"+i+"'>";
+			}			
+			if((currentPage + showPage) <= endPage){
+				pageHTML += "<input type='button' id='nextBtn' value='&gt;'>";				
+			}			
+			$j("#pageDiv").html(pageHTML);
+		}
+		
+		buildPage(currentPage,showPage,endPage);
+		$j("#btn"+currentPage ).addClass('current');
+		//ë‹¨ì¼ë°•ìŠ¤ë¥¼ í´ë¦­í•˜ëŠ” ê²½ìš°	
 		$j(".selectGroup").on("click",function(){
 			boardTypes = [];
 			
 			$j(".selectGroup:checked").each(function(){
 				boardTypes.push($j(this).val());
 			});
-			//ÀüÃ¼ Ã¼Å© ÈÄ ´ÜÀÏ¹Ú½º¸¦ Å¬¸¯ÇÏ´Â °æ¿ì
+			//ì „ì²´ ì²´í¬ í›„ ë‹¨ì¼ë°•ìŠ¤ë¥¼ í´ë¦­í•˜ëŠ” ê²½ìš°
 			if(!$j(this).prop("checked")){
 				$j("#selectAll").prop("checked",false);
 			}
-			//¸ğµç ´ÜÀÏ¹Ú½º°¡ Å¬¸¯µÈ °æ¿ì
+			//ëª¨ë“  ë‹¨ì¼ë°•ìŠ¤ê°€ í´ë¦­ëœ ê²½ìš°
 			if (boardTypes.length === menuSize){
 				console.log(menuSize);
 				$j("#selectAll").prop("checked", true);
 			}
 		});
 		
-		//ÀüÃ¼¹Ú½º¸¦ Å¬¸¯ÇÏ´Â °æ¿ì
+		//ì „ì²´ë°•ìŠ¤ë¥¼ í´ë¦­í•˜ëŠ” ê²½ìš°
 		$j("#selectAll").on("click",function(){
 			$j(".selectGroup").prop("checked",$j(this).prop("checked"));
 			$j(".selectGroup:checked").each(function(){
@@ -63,10 +99,10 @@
 		$j("#submit").on("click",function(){
 			var param = '';
 			if(boardTypes.length === 0){
-				param = 'boardTypes=1&boardTypes=2&boardTypes=3&boardTypes=4';
+				param = 'boardTypes=a01&boardTypes=a02&boardTypes=a03&boardTypes=a04';
 				
 			}else {
-				param = $j.param({ boardTypes: boardTypes},true);
+				param = $j.param({ boardTypes: boardTypes , pageNo : 1},true);
 				console.log("param" + param);
 			}
 			$j.ajax({
@@ -77,14 +113,123 @@
 				success: function(data, textStatus, jqXHR)
 				{	
 					updatePage(data);
-					console.log(data);
+					console.log("ajax success í›„ boardTypes: " + boardTypes);
+					currentPage = data.currentPage;
+					showPage = data.showPage;
+					endPage = data.endPage;
+					buildPage(currentPage,showPage,endPage);
+					
+					$j("#btn"+currentPage ).addClass('current');
+					
+					console.log("showPage: " + showPage);
+					console.log("currentPage: " + currentPage);
+					console.log("endPage: " + endPage);
 				},
 				error: function (jqXHR, textStatus, errorThrown)
 			    {
-			    	alert("½ÇÆĞ");
+			    	alert("ì‹¤íŒ¨");
 			    }
 			});
 			
+		});
+		$j(document).on("click","#nextBtn", function(){
+			var pageNo = parseInt($j("#pageDiv").find('input[id^="btn"]:first').val()) +5 ;
+			console.log("nextPage: " + pageNo);
+			param = $j.param({ boardTypes: boardTypes , pageNo : pageNo},true);
+			
+			$j.ajax({
+				url : "/board/boardListByBoardType.do",
+				dataType: "json",
+				type: "GET",
+				data: param,
+				success: function(data, textStatus, jqXHR)
+				{	
+					
+					updatePage(data);
+					console.log("ajax success í›„ boardTypes: " + boardTypes);
+					showPage = data.showPage;
+					endPage = data.endPage;
+					currentPage = data.currentPage;
+					buildPage(pageNo,showPage,endPage);
+					
+					$j("#btn"+currentPage ).addClass('current');
+					
+					console.log("showPage: " + showPage);
+					console.log("currentPage: " + currentPage);
+					console.log("endPage: " + endPage);
+
+				},
+				error: function (jqXHR, textStatus, errorThrown)
+			    {
+			    	alert("ì‹¤íŒ¨");
+			    }
+			});
+		});
+		
+		$j(document).on("click","#preBtn", function(){
+			var pageNo = parseInt($j("#pageDiv").find('input[id^="btn"]:first').val()) -5 ;
+			console.log("nextPage: " + pageNo);
+			param = $j.param({ boardTypes: boardTypes , pageNo : pageNo},true);
+			
+			$j.ajax({
+				url : "/board/boardListByBoardType.do",
+				dataType: "json",
+				type: "GET",
+				data: param,
+				success: function(data, textStatus, jqXHR)
+				{	
+					
+					updatePage(data);
+					console.log("ajax success í›„ boardTypes: " + boardTypes);
+					showPage = data.showPage;
+					endPage = data.endPage;
+					currentPage = data.currentPage;
+					buildPage(pageNo,showPage,endPage);
+					
+					$j("#btn"+currentPage ).addClass('current');
+					
+					console.log("showPage: " + showPage);
+					console.log("currentPage: " + currentPage);
+					console.log("endPage: " + endPage);
+
+				},
+				error: function (jqXHR, textStatus, errorThrown)
+			    {
+			    	alert("ì‹¤íŒ¨");
+			    }
+			});
+		});
+		
+		$j(document).on("click","[id^='btn']" ,function(){
+			console.log("í˜ì´ì§€ë²„íŠ¼ ëˆŒë €ì„ ë•Œ boardTypes: " + boardTypes);
+			var pageNo = $j(this).val();
+			$j("[id^='btn']").removeClass('current');
+			$j(this).addClass('current');
+			console.log("pageNo: " + pageNo);
+			param = $j.param({ boardTypes: boardTypes , pageNo : pageNo},true);
+			
+			$j.ajax({
+				url : "/board/boardListByBoardType.do",
+				dataType: "json",
+				type: "GET",
+				data: param,
+				success: function(data, textStatus, jqXHR)
+				{	
+					
+					updatePage(data);
+					console.log("ajax success í›„ boardTypes: " + boardTypes);
+					currentPage = data.currentPage;
+					showPage = data.showPage;
+					/*buildPage(pageNo,showPage);
+					console.log("data.currentPage: " + data.currentPage);
+					console.log("currentPage: " + currentPage);*/
+
+				},
+				error: function (jqXHR, textStatus, errorThrown)
+			    {
+			    	alert("ì‹¤íŒ¨");
+			    }
+			});
 		});
 		
 			
@@ -92,6 +237,7 @@
 
 </script>
 <body>
+
 <form >
 
 <table  align="center">
@@ -139,19 +285,26 @@
 	</tr>
 	<tr>
 		<td align="right">
-			<a href ="/board/boardWrite.do">±Û¾²±â</a>
+			<a href ="/board/boardWrite.do">ê¸€ì“°ê¸°</a>
 			<c:if test="${not empty userName}">
-				<a href="/board/logout.do">·Î±×¾Æ¿ô</a>
+				<a href="/board/logout.do">ë¡œê·¸ì•„ì›ƒ</a>
 			</c:if>
 		</td>
 	</tr>
 	<tr>
 		<td>
-		<input type="checkbox" id="selectAll" name="boardType">ÀüÃ¼
+		<input type="checkbox" id="selectAll" name="boardType">ì „ì²´
 		<c:forEach var="item" items="${code}">
 			<input class="selectGroup" type="checkbox" name="boardType" value="${item.codeId}">${item.codeName}
 		</c:forEach>
-		<input id="submit" type="button" name="search" value="Á¶È¸">
+		<input id="submit" type="button" name="search" value="ì¡°íšŒ">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div id="pageDiv" align="center">
+			
+			</div>
 		</td>
 	</tr>
 </table>	

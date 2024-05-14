@@ -1,10 +1,10 @@
-<%@ page language="java" contentType="text/html; charset=EUC-KR"
-    pageEncoding="EUC-KR"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <%@include file="/WEB-INF/views/common/common.jsp"%>
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="EUC-KR">
+<meta>
 <title>Login</title>
 </head>
 <script type="text/javascript">
@@ -20,12 +20,12 @@
 			
 			if(userId.trim() === ''){
 				$j("[name='userId']").focus();
-				alert('¾ÆÀÌµğ¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä.');
+				alert('ì•„ì´ë””ë¥¼ ì…ë ¥í•´ì£¼ì„¸ìš”.');
 				return;
 			}
 			else if(userPw.trim() === ''){
 				$j("[name='userPw']").focus();
-				alert('ºñ¹Ğ¹øÈ£¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä.');
+				alert('ë¹„ë°€ë²ˆí˜¸ë¥¼ ì…ë ¥í•´ì£¼ì„¸ìš”.');
 				return;
 			}
 			else {
@@ -39,13 +39,13 @@
 						var msg = data.success;
 						if(msg === "Y"){
 							var userName = data.userName;
-							alert(userName + "´Ô  " + "·Î±×ÀÎ¿¡ ¼º°øÇÏ¼Ì½À´Ï´Ù." );
+							alert(userName + "ë‹˜  " + "ë¡œê·¸ì¸ì— ì„±ê³µí•˜ì…¨ìŠµë‹ˆë‹¤." );
 						}
 						location.href = "/board/boardList.do";
 				    },
 				    error: function (jqXHR, textStatus, errorThrown)
 				    {
-				    	alert("·Î±×ÀÎ Á¤º¸°¡ ÀÏÄ¡ÇÏÁö ¾Ê½À´Ï´Ù.");
+				    	alert("ë¡œê·¸ì¸ ì •ë³´ê°€ ì¼ì¹˜í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.");
 				    }
 				});	
 			}

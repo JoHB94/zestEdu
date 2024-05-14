@@ -9,6 +9,7 @@
     	<result property="boardTitle" 	column="BOARD_TITLE"/>
     	<result property="boardComment" column="BOARD_COMMENT"/>
     	<result property="totalCnt" 	column="TOTAL_CNT"/>
+    	<result property="endPage" column="END_PAGE"/>
     </resultMap>
     
     <resultMap type="com.spring.board.vo.CodeInfoVo" id="codeInfoVo">
@@ -25,6 +26,7 @@
 			,BOARD_TITLE
 			,BOARD_COMMENT
 			,TOTAL_CNT
+
       	FROM
       	(
 		  SELECT

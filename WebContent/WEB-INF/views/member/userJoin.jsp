@@ -1,33 +1,33 @@
-<%@ page language="java" contentType="text/html; charset=EUC-KR"
-    pageEncoding="EUC-KR"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <%@include file="/WEB-INF/views/common/common.jsp"%>
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="EUC-KR">
+<meta>
 <title>memberJoin</title>
 </head>
 <script type="text/javascript">
 	$j(document).ready(function(){
-//********À¯È¿¼º È®ÀÎ º¯¼ö******************************
+//********ìœ íš¨ì„± í™•ì¸ ë³€ìˆ˜******************************
 		
 		var isRequired 	= false;
 		var isCheckedId = false;                                
 		var isCheckedPw = false;
 		var postalCodePattern = /^\d{3}-\d{3}$/;
 			
-//********¹®ÀÚ¿­ÀÇ ½ÇÁ¦ ¹ÙÀÌÆ® ¼ö¸¦ °è»êÇÏ´Â ÇÔ¼ö***************
+//********ë¬¸ìì—´ì˜ ì‹¤ì œ ë°”ì´íŠ¸ ìˆ˜ë¥¼ ê³„ì‚°í•˜ëŠ” í•¨ìˆ˜***************
 				
 		function byteLength(str) {
 		    return new Blob([str]).size;
 		}
 		
-//********¾ÆÀÌµğ Áßº¹À» Ã¼Å©ÇÏ´Â ÇÔ¼ö***********************
+//********ì•„ì´ë”” ì¤‘ë³µì„ ì²´í¬í•˜ëŠ” í•¨ìˆ˜***********************
 		
 		$j("#checkId").on("click",function(){
 			isCheckedId = false;
 			if($j("input[name='userId']").val() === ''){
-				alert("¾ÆÀÌµğ¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä.")
+				alert("ì•„ì´ë””ë¥¼ ì…ë ¥í•´ì£¼ì„¸ìš”.")
 			}else{
 				var $frm 	= $j("input[name='userId']");   
 				var param	= $frm.serialize();
@@ -41,24 +41,24 @@
 					{	
 						var message= "";
 						if(data.success === "Y"){
-							message = "»ç¿ëÀÌ °¡´ÉÇÑ ¾ÆÀÌµğ ÀÔ´Ï´Ù."
+							message = "ì‚¬ìš©ì´ ê°€ëŠ¥í•œ ì•„ì´ë”” ì…ë‹ˆë‹¤."
 						} 
 						else {
-							message = "Áßº¹µÈ ¾ÆÀÌµğ ÀÔ´Ï´Ù."
+							message = "ì¤‘ë³µëœ ì•„ì´ë”” ì…ë‹ˆë‹¤."
 						}
-						alert("¸Ş¼¼Áö : " + message);
+						alert("ë©”ì„¸ì§€ : " + message);
 						isCheckedId = true;
-						console.log("¾ÆÀÌµğ Áßº¹ Ã¼Å©¿©ºÎ : " + isCheckedId);
+						console.log("ì•„ì´ë”” ì¤‘ë³µ ì²´í¬ì—¬ë¶€ : " + isCheckedId);
 					},
 					error : function(jqXHR, textStatus, errorThrown)
 					{
-						alert("Åë½Å ½ÇÆĞ");
+						alert("í†µì‹  ì‹¤íŒ¨");
 					}
 				})
 			}
 		});
 		
-//********* inputÀ» Á¦ÇÑÇÏ´Â ÇÔ¼ö********************************
+//********* inputì„ ì œí•œí•˜ëŠ” í•¨ìˆ˜********************************
 		
 		$j("input[name='userAddr1']").on("input keydown",function(event){
 			var $input = $j(this).val().replace(/[^0-9]/g,'');
@@ -96,7 +96,7 @@
 			var $input = $j(this).val().replace(/[^0-9]/g, '');
 			$j(this).val($input);
 			
-			console.log("userPhone2 ÀÇ ±æÀÌ : " + $input.length);
+			console.log("userPhone2 ì˜ ê¸¸ì´ : " + $input.length);
 			if($input.length >= 4 && event.key !== 'Backspace' && event.key !== 'Tab') {
 				event.preventDefault();
 			}
@@ -105,7 +105,7 @@
 		$j("input[name='userPhone3']").on("input keydown",function(event){
 			var $input = $j(this).val().replace(/[^0-9]/g, '');
 			$j(this).val($input);
-			console.log("userPhone3 ÀÇ ±æÀÌ : " + $input.length);
+			console.log("userPhone3 ì˜ ê¸¸ì´ : " + $input.length);
 			if($input.length >= 4 && event.key !== 'Backspace' && event.key !== 'Tab') {
 				event.preventDefault();
 			}
@@ -113,7 +113,7 @@
 		
 		$j("input[name='userPw']").on("input keydown",function(event){
 			var $input = $j(this).val();
-			console.log("userPw ÀÇ ±æÀÌ : " + $input.length);
+			console.log("userPw ì˜ ê¸¸ì´ : " + $input.length);
 			if($input.length >= 12 && event.key !== 'Backspace' && event.key !== 'Tab') {
 				event.preventDefault();
 			}
@@ -121,21 +121,21 @@
 		
 		$j("input[name='pwCheck']").on("input keydown",function(event){
 			var $input = $j(this).val();
-			console.log("pwCheck ÀÇ ±æÀÌ : " + $input.length);
+			console.log("pwCheck ì˜ ê¸¸ì´ : " + $input.length);
 			if($input.length >= 12 && event.key !== 'Backspace' && event.key !== 'Tab') {
 				event.preventDefault();
 			}
 		});
 			
 		
-//**********submit ¹öÆ° Å¬¸¯½Ã*************************************
+//**********submit ë²„íŠ¼ í´ë¦­ì‹œ*************************************
 		$j("#submit").on("click",function(){
 			
 			var $userInfo = $j(".userJoin input").add($j(".userJoin select"));
 			
 			var param = $userInfo.serialize();
 			
-			//userJoin ÇÊµå°ª	not null
+			//userJoin í•„ë“œê°’	not null
 			var $userId 	= $j("input[name='userId']").val();
 			var $userPw 	= $j("input[name='userPw']").val();
 			var $pwCheck 	= $j("input[name='pwCheck']").val();
@@ -143,83 +143,83 @@
 			var $userPhone1 = $j("input[name='userPhone1']").val();
 			var $userPhone2 = $j("input[name='userPhone2']").val();
 			var $userPhone3 = $j("input[name='userPhone3']").val();
-			//userJoin ÇÊµå°ª nullable
+			//userJoin í•„ë“œê°’ nullable
 			var $userAddr1 	= $j("input[name='userAddr1']").val();
 			var $userAddr2 	= $j("input[name='userAddr2']").val();
 			var $userCompany= $j("input[name='userCompany']").val();
 			
 			
-			//À¯È¿¼º °ËÁõ
+			//ìœ íš¨ì„± ê²€ì¦
 			if($userId === ''){
-				alert("¾ÆÀÌµğ´Â ÇÊ¼ö Ç×¸ñÀÔ´Ï´Ù.");
+				alert("ì•„ì´ë””ëŠ” í•„ìˆ˜ í•­ëª©ì…ë‹ˆë‹¤.");
 				$j("[name = 'userId']").focus();
 				return;
 			}
 			if($userId.length > 15){
-				alert("¾ÆÀÌµğ´Â ÃÖ´ë 15±ÛÀÚ±îÁö ÀÔ·Â °¡´ÉÇÕ´Ï´Ù.");
+				alert("ì•„ì´ë””ëŠ” ìµœëŒ€ 15ê¸€ìê¹Œì§€ ì…ë ¥ ê°€ëŠ¥í•©ë‹ˆë‹¤.");
 				$j("[name = 'userId']").focus();
 				return;
 			}
 			if($userId !== '' && !isCheckedId){
-				alert("¾ÆÀÌµğ Áßº¹È®ÀÎÀ» ÇØÁÖ¼¼¿ä.");
+				alert("ì•„ì´ë”” ì¤‘ë³µí™•ì¸ì„ í•´ì£¼ì„¸ìš”.");
 				$j("#checkId").focus();
 				return;
 			}
 			if($userPw === ''){
-				alert("ºñ¹Ğ¹øÈ£´Â ÇÊ¼ö Ç×¸ñÀÔ´Ï´Ù.");
+				alert("ë¹„ë°€ë²ˆí˜¸ëŠ” í•„ìˆ˜ í•­ëª©ì…ë‹ˆë‹¤.");
 				$j("[name = 'userPw']").focus();
 				return;
 			}
 			if($pwCheck === ''){
-				alert("ºñ¹Ğ¹øÈ£ È®ÀÎÀº ÇÊ¼ö Ç×¸ñÀÔ´Ï´Ù.");
+				alert("ë¹„ë°€ë²ˆí˜¸ í™•ì¸ì€ í•„ìˆ˜ í•­ëª©ì…ë‹ˆë‹¤.");
 				$j("[name = 'pwCheck']").focus();
 				return;
 			}
 			if($userPw !== '' && $userPw.length < 6 ||$userPw.length > 12){
-				alert("ºñ¹Ğ¹øÈ£´Â ÃÖ¼Ò 6ÀÚ ÃÖ´ë 12ÀÚ ±îÁö °¡´ÉÇÕ´Ï´Ù.");
+				alert("ë¹„ë°€ë²ˆí˜¸ëŠ” ìµœì†Œ 6ì ìµœëŒ€ 12ì ê¹Œì§€ ê°€ëŠ¥í•©ë‹ˆë‹¤.");
 				$j("[name = 'userPw']").focus();
 				return;
 			}
 			if($pwCheck !== ''&& $userPw !== $pwCheck){
-				alert("ºñ¹Ğ¹øÈ£°¡ ´Ù¸¨´Ï´Ù.");
+				alert("ë¹„ë°€ë²ˆí˜¸ê°€ ë‹¤ë¦…ë‹ˆë‹¤.");
 				$j("[name = 'pwCheck']").focus();
 				return;              
 			}
 			if($userPw === $pwCheck){
 				isCheckedPw = true;
-				console.log("pwÈ®ÀÎ ¿©ºÎ : " + isCheckedPw);
+				console.log("pwí™•ì¸ ì—¬ë¶€ : " + isCheckedPw);
 			}
 			
 			if($userName === ''){
-				alert("ÀÌ¸§Àº ÇÊ¼ö Ç×¸ñÀÔ´Ï´Ù.");
+				alert("ì´ë¦„ì€ í•„ìˆ˜ í•­ëª©ì…ë‹ˆë‹¤.");
 				$j("[name = 'userName']").focus();
 				return;
 			}
 			if($userName.length > 5){
-				alert("ÀÌ¸§Àº ÃÖ´ë 5±ÛÀÚ±îÁö ÀÔ·ÂÀÌ °¡´ÉÇÕ´Ï´Ù.");
+				alert("ì´ë¦„ì€ ìµœëŒ€ 5ê¸€ìê¹Œì§€ ì…ë ¥ì´ ê°€ëŠ¥í•©ë‹ˆë‹¤.");
 				return;
 			}
 			if($userPhone1 === ''){
-				alert("ÀüÈ­¹øÈ£´Â ÇÊ¼ö Ç×¸ñÀÔ´Ï´Ù.");
+				alert("ì „í™”ë²ˆí˜¸ëŠ” í•„ìˆ˜ í•­ëª©ì…ë‹ˆë‹¤.");
 				$j("[name = 'userPhone1']").focus();
 				return;
 			}else if($userPhone2 === ''){
-				alert("ÀüÈ­¹øÈ£´Â ÇÊ¼ö Ç×¸ñÀÔ´Ï´Ù.");
+				alert("ì „í™”ë²ˆí˜¸ëŠ” í•„ìˆ˜ í•­ëª©ì…ë‹ˆë‹¤.");
 				$j("[name = 'userPhone2']").focus();
 				return;					
 				
 			}else if($userPhone3 === ''){
 				if($userPhone2.length !== 4){
-					alert("ÀüÈ­¹øÈ£ Çü½ÄÀÌ Æ²·È½À´Ï´Ù. 'xxx-xxxx-xxxx' ");
+					alert("ì „í™”ë²ˆí˜¸ í˜•ì‹ì´ í‹€ë ¸ìŠµë‹ˆë‹¤. 'xxx-xxxx-xxxx' ");
 					$j("[name = 'userPhone2']").focus();
 					return;
 				}else{
-					alert("ÀüÈ­¹øÈ£´Â ÇÊ¼ö Ç×¸ñÀÔ´Ï´Ù.");
+					alert("ì „í™”ë²ˆí˜¸ëŠ” í•„ìˆ˜ í•­ëª©ì…ë‹ˆë‹¤.");
 					$j("[name = 'userPhone3']").focus();
 					return;					
 				}
 			}else if($userPhone3.length !== 4){
-				alert("ÀüÈ­¹øÈ£ Çü½ÄÀÌ Æ²·È½À´Ï´Ù. 'xxx-xxxx-xxxx' ");
+				alert("ì „í™”ë²ˆí˜¸ í˜•ì‹ì´ í‹€ë ¸ìŠµë‹ˆë‹¤. 'xxx-xxxx-xxxx' ");
 				$j("[name = 'userPhone3']").focus();
 				return;		
 			}
@@ -227,27 +227,27 @@
 						
 			if($userPw !=='' && $userId !== '' && $userName !== '' && $userPhone1 !== null && $userPhone2 !== null && $userPhone3 !== null){
 				isRequired = true;
-				console.log("ÇÊ¼ö Ç×¸ñ È®ÀÎ ¿©ºÎ : " + isRequired);
+				console.log("í•„ìˆ˜ í•­ëª© í™•ì¸ ì—¬ë¶€ : " + isRequired);
 			}
 			if($userAddr1 !== '' && !postalCodePattern.test($userAddr1)){
-				alert("¿ìÆí¹øÈ£ Çü½ÄÀÌ Æ²¸³´Ï´Ù.`\n` ¼ıÀÚ 'xxx-xxx'");
+				alert("ìš°í¸ë²ˆí˜¸ í˜•ì‹ì´ í‹€ë¦½ë‹ˆë‹¤.`\n` ìˆ«ì 'xxx-xxx'");
 				$j("[name = 'userAddr1']").focus();
 				return;
 			}
 			
 			if($userAddr2 !== '' && byteLength($userAddr2) > 149){
-				alert("ÁÖ¼Ò°¡ ³Ê¹« ±é´Ï´Ù. ÃÖ´ë 150BYTE");
+				alert("ì£¼ì†Œê°€ ë„ˆë¬´ ê¹ë‹ˆë‹¤. ìµœëŒ€ 150BYTE");
 				return;
 			}
 			
 			if($userCompany !== '' && byteLength($userCompany) > 59){
-				alert("È¸»ç¸íÀÌ ³Ê¹«±é ´Ï´Ù. ÃÖ´ë 60BYTE");
+				alert("íšŒì‚¬ëª…ì´ ë„ˆë¬´ê¹ ë‹ˆë‹¤. ìµœëŒ€ 60BYTE");
 				return;  
 			}
 			
 			
 			if(isCheckedId === true && isCheckedPw === true && isRequired === true){
-				console.log("°¡ÀÔ ÇÊ¼ö Á¶°Ç ÃæÁ·");
+				console.log("ê°€ì… í•„ìˆ˜ ì¡°ê±´ ì¶©ì¡±");
 				$j.ajax({
 					url : "/board/userJoinAction.do",
 				    dataType: "json",
@@ -255,15 +255,15 @@
 				    data : param,
 				    success: function(data, textStatus, jqXHR)
 				    {
-						alert("°¡ÀÔ¿Ï·á");
+						alert("ê°€ì…ì™„ë£Œ");
 						
-						alert("¸Ş¼¼Áö:" + data.success);
+						alert("ë©”ì„¸ì§€:" + data.success);
 						
 						location.href = "/board/boardList.do";
 				    },
 				    error: function (jqXHR, textStatus, errorThrown)
 				    {
-				    	alert("½ÇÆĞ");
+				    	alert("ì‹¤íŒ¨");
 				    }
 				})
 			}
@@ -286,7 +286,7 @@
 					<td width="120" align="center">*id</td>
 					<td width="300">
 						<input name="userId" type="text">
-						<input id="checkId" type="button" value="Áßº¹È®ÀÎ">
+						<input id="checkId" type="button" value="ì¤‘ë³µí™•ì¸">
 					</td>
 				</tr>
 				<tr>

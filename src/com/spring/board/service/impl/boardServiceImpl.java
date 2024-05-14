@@ -72,7 +72,8 @@ public class boardServiceImpl implements boardService{
 	@Override
 	public List<BoardVo> selectBoardListByBoardType(PageVo pageVo) throws Exception {
 		// TODO Auto-generated method stub
-		return boardDao.selectBoardListByboardType(pageVo);
+		List<BoardVo> boardListByType = boardDao.selectBoardListByboardType(pageVo);
+		return boardListByType;
 	}
 
 	@Override

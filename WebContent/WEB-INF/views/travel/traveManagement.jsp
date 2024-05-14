@@ -11,23 +11,61 @@
 	    font-size: 16px; /* 버튼의 글꼴 크기 설정 */
 	    padding: 5px 8px; /* 버튼의 내부 여백 설정 */
 	}
+	.selected {
+  		background-color: highlight;
+  		color: white; 
+	}
 </style>
 </head>
 <script type="text/javascript">
 $j(document).ready(function(){
-	var clientList = [];
-	var traveDate = "";
-	var traveList = [];
+	$j('#periodDiv').css('width', $j('#detailTable').outerWidth());
+//**********************************************************************	
 	
+	var client = {};
+	var inputDay = "";
+	var traveList = [];
+	var initialCity = "";
+	
+	var clientSeq = "";
 	var period = "";
-
+	var estimatedExpenes = "";
+	var rowCnt = 1;
 //*********************고객명을 클릭했을 때, 실행되는 함수 ************************
 	$j("[id^='clientName']").on("click",function(){
+		client = {};
+		//css효과 부여
+		$j("#clientTable tr.selected").removeClass('selected');
+		$j(this).closest("tr").addClass('selected');
 		//기존에 존재하던 periodButton 삭제.
 		$j('#periodDiv').empty();
+		$j('#detailDiv').empty();
+		var rowId = $j(this).closest("tr").attr("id");
+		console.log("rowId: " + rowId);
+		var seq = $j("#"+rowId + " input[name='seq']").val();
+		var userName = $j("#"+rowId + " input[name='userName']").val();
+		var userPhone = $j("#"+rowId + " input[name='userPhone']").val();
+		var traveCity = $j("#"+rowId + " input[name='traveCity']").val();
+		var period = $j("#"+rowId + " input[name='period']").val();
+		var transport = $j("#"+rowId + " input[name='transport']").val();
+		var expend = $j("#"+rowId + " input[name='expend']").val();
 		
-		var seq = $j(this).closest("tr").find("input[name='seq']").val();
-		console.log("seq: " + JSON.stringify(seq));
+		clientSeq = seq;
+		
+		client = 
+		{
+				seq : seq,
+				userName : userName,
+				userPhone : userPhone,
+				traveCity : traveCity,
+				period : period,
+				transport : transport,
+				expend : expend
+		};
+		
+		
+		console.log("client: " + JSON.stringify(client));
+		
 		if(seq !== ""){
 
 			$j.ajax({
@@ -38,7 +76,9 @@ $j(document).ready(function(){
 			    data : JSON.stringify(seq),
 			    success: function(data, textStatus, jqXHR) {
 			        console.log("ajax통신 성공: " + period);
+			        rowCnt = 1;
 			        period = data.period;
+			        //버튼 생성
 			        if (period !== "") {
 			            for (var i = 0; i < period; i++) {
 			                var button = $j("<button></button>");
@@ -57,6 +97,9 @@ $j(document).ready(function(){
 			                $j("#periodDiv").append(button);
 			            }
 			        }
+			        //traveCity 값 할당.
+			        initialCity = traveCity;
+			        
 			    },
 			    error: function (jqXHR, textStatus, errorThrown)
 			    {
@@ -66,29 +109,97 @@ $j(document).ready(function(){
 		}
 		
 	});
-//*******************버튼을 클릭했을 경우 ***************************
+//*******************period버튼을 클릭했을 경우 ***************************
+	$j("#periodDiv").on("click", ".periodButton-style", function() {
+        // 기존에 선택된 버튼의 클래스 제거
+        $j(".periodButton-style").removeClass("selected");
+
+        // 현재 클릭된 버튼에 선택된 클래스 추가
+        $j(this).addClass("selected");
+    });
+    
 	$j(document).on("click","[name='periodButton']",function(){
+
 		var traveInfoVo = {};
-		var traveDay = $j(this).val();
-		var seq = $j(this).data("custom");
-		console.log("buttonVal: " + traveDay);
-		console.log("seq: " + seq);
+
+		inputDay = $j(this).val();
 		
+		console.log("periodButton 클릭시 inputDay: " + inputDay);
 		traveInfoVo =
-			{
-				traveDay : traveDay, seq : seq
-			}
+		{
+			traveDay : inputDay, seq : clientSeq
+		}
+		
+			
 		var data = JSON.stringify(traveInfoVo);
 		
 		$j.ajax({
-		    url : "/travel/loginAction.do",
+		    url : "/travel/detailTraveList.do",
 		    contentType: "application/json",
 		    dataType: "json",
 		    type: "POST",
 		    data : data,
 		    success: function(data, textStatus, jqXHR)
-		    {
-		    	var detailTraveList = data.detailTraveList;
+		    {	
+		    	$j("#detailDiv").empty();
+		    	updateHtml(data);
+		    	
+		    	//traveList가 있는 경우 : DB저장값에 맞게 값을 뿌린다.
+		    	if(Array.isArray(data.detailTraveList) && data.detailTraveList.length > 0){
+		    		rowCnt = data.detailTraveList.length;
+		    		console.log("rowCnt: " + rowCnt);
+					for(var i=0; i < data.detailTraveList.length; i++){
+						var citySelect = $j("#traveCitySelect" + (i + 1));
+						var countySelect = $j("#traveCountySelect" + (i + 1));
+						var transSelect = $j("#traveTransSelect" + (i + 1));
+						
+						var savedCity = data.detailTraveList[i].traveCity;
+						var savedCounty = data.detailTraveList[i].traveCounty;
+						var savedTrans = data.detailTraveList[i].traveTrans;
+						
+						console.log("savedCity: " + savedCity + " savedCounty: " + savedCounty);
+						
+						setCity(citySelect, savedCity);
+						setCounty(countySelect, savedCity, savedCounty);
+						setTrans(transSelect, savedTrans);
+					}
+					//수정요청이 있는 줄을 노란색으로 변경
+					$j("#detailDiv input[name='request']").each(function() {
+					    if ($j(this).val() === 'M') {
+					        $j(this).closest("tr").css("background-color", "yellow");
+					    }
+					});
+					//교통비를 계산하는 함수
+					$j("#detailTable tr").each(function(index, element) {
+			            var tr = $j(element);
+			            var traveTrans = tr.find("input[name='traveTrans']").val();
+			            var traveTime = tr.find("input[name='traveTime']").val();
+			            var transTime = tr.find("input[name='transTime']").val();
+
+			            if (traveTime !== "" && transTime !== "" && traveTrans !== undefined) {
+			                var transFeeCell = tr.find(".transFee");
+			                var finalFee;
+
+			                if (traveTrans === "T") {
+			                    finalFee = taxiFee(traveTime, transTime) + "원";
+			                } else if (traveTrans === "B" || traveTrans === "S") {
+			                    finalFee = publicTransFee(traveTrans, traveTime, transTime) + "원";
+			                }
+
+			                transFeeCell.text(finalFee);
+			            }
+			        });
+		    	}else{	    		
+			    	//traveList가 없는 경우 : initailize함수로 select 초기화
+			    	rowCnt = 1;
+			    	var citySelect = $j("[id^=traveCitySelect]:first");
+			    	var countySelect = $j("[id^=traveCountySelect]:first");
+			    	var transSelect = $j("[id^=traveTransSelect]:first");
+			    	initializeCity(citySelect);
+			    	initializeCounty(countySelect);
+			    	initializeTrans(transSelect);
+		    	}
+		    	
 		    	
 		    },
 		    error: function (jqXHR, textStatus, errorThrown)
@@ -98,6 +209,307 @@ $j(document).ready(function(){
 		});	
 		
 	});
+	
+	$j(document).on("click","[name='save']",function(){
+		console.log("saveButton 클릭시 inputDay: " + inputDay);
+		var rowNumbers = [];
+		var traveList = [];
+		$j("[id^='detailInput']").each(function(){
+			var rowId = $j(this).attr('id');
+			var rowNumber = parseInt(rowId.replace('detailInput',''));
+			rowNumbers.push(rowNumber);
+		});
+		for(var i =0; i < rowNumbers.length; i ++){
+			var $row = $j("#detailInput" + rowNumbers[i]);
+			
+			var traveDay = $row.find('[name="traveDay"]').val();
+			var traveTime = $row.find('[name="traveTime"]').val();
+			var traveCity = $row.find('[name="traveCity"]').val();
+			var traveCounty = $row.find('[name="traveCounty"]').val();
+			var traveLoc = $row.find('[name="traveLoc"]').val();
+			var traveTrans = $row.find('[name="traveTrans"]').val();
+			var transTime = $row.find('[name="transTime"]').val();
+			var useTime = $row.find('[name="useTime"]').val();
+			var useExpend = $row.find('[name="useExpend"]').val();
+			var traveDetail = $row.find('[name="traveDetail"]').val();
+			var request = $row.find('[name="request"]').val();
+			var seq = clientSeq;
+			
+			var traveTimeMin = parseInt(traveTime.split(":")[1]);
+			
+			if(traveTime === ""){
+				$row.find('[name="traveTime"]').focus();
+				alert("시간을 입력하세요.");
+				return;
+			}
+			if(traveTimeMin %10 !== 0){
+				$row.find('[name="traveTime"]').focus();
+				alert("시간은 10분 단위로 입력하세요.");
+				return;
+			}
+			if(traveLoc === ""){
+				$row.find('[name="traveLoc"]').focus();
+				alert("장소를 입력하세요.");
+				return;
+			}
+			if(useTime === ""){
+				$row.find('[name="useTime"]').focus();
+				alert("이용시간을 입력하세요.");
+				return;
+			}
+			if(useTime < 10 || useTime.slice(-1)!=="0"){
+				$row.find('[name="useTime"]').focus();
+				alert("시간은 10분 단위로 입력하세요.");
+				return;
+			}
+			if(transTime === ""){
+				$row.find('[name="transTime"]').focus();
+				alert("이동시간을 입력하세요.");
+				return;
+			}
+			
+			if(transTime < 10 || transTime.slice(-1)!=="0"){
+				$row.find('[name="transTime"]').focus();
+				alert("시간은 10분 단위로 입력하세요.");
+				return;
+			}
+			if(useExpend === ""){
+				$row.find('[name="useExpend"]').focus();
+				alert("이용요금을 입력하세요.");
+				return;
+			}
+			if(traveDetail === ""){
+				$row.find('[name="traveDetail"]').focus();
+				alert("계획상세를 입력하세요.");
+				return;
+			}
+			
+			
+			
+			//**************유효성 검증 코드가 들어갈 곳 *********************
+			traveList.push(
+				{
+					traveDay : inputDay, traveTime : traveTime, traveCity : traveCity,
+					traveCounty : traveCounty, traveLoc : traveLoc, traveTrans : traveTrans,
+					transTime : transTime, useTime : useTime, useExpend : useExpend,
+					traveDetail : traveDetail, request : request, seq :clientSeq, useTime : useTime
+				}	
+			);
+		}
+		traveList.sort(function(a, b) {
+		    // transTime을 Date 객체로 변환
+		    var transTimeA = parseInt(a.transTime);
+		    var transTimeB = parseInt(b.transTime);
+		    
+		    var useTimeA = parseInt(a.useTime);
+		    var useTimeB = parseInt(b.useTime);
+
+		    // traveTime에 transTime과 useTime을 더하여 endTime을 계산
+		    var traveTimeA = parseInt(a.traveTime.split(':').reduce((acc, val, index) => index === 0 ? acc + parseInt(val) * 60 : acc + parseInt(val), 0));
+		    var traveTimeB = parseInt(b.traveTime.split(':').reduce((acc, val, index) => index === 0 ? acc + parseInt(val) * 60 : acc + parseInt(val), 0));
+		    
+		    var endTimeA = traveTimeA + transTimeA + useTimeA;
+		    var endTimeB = traveTimeB + transTimeB + useTimeB;
+
+		    // endTime을 기준으로 정렬
+		    return endTimeA - endTimeB;
+		});
+		
+		for(i=0; i<traveList.length; i++){
+			console.log(JSON.stringify(traveList,null,2));
+		}
+
+		for (var i = 0; i < traveList.length -1; i++) {
+			var traveTimeMin = parseInt(traveList[i].traveTime.split(':').reduce((acc, val, index) => index === 0 ? acc + parseInt(val) * 60 : acc + parseInt(val), 0));
+			var transTime = parseInt(traveList[i].transTime);
+			var useTime = parseInt(traveList[i].useTime);
+			
+			var nextTraveTimeMin = parseInt(traveList[i+1].traveTime.split(':').reduce((acc, val, index) => index === 0 ? acc + parseInt(val) * 60 : acc + parseInt(val), 0));
+			
+			var currentEndTime = traveTimeMin + transTime + useTime;
+			var nextStartTime = nextTraveTimeMin;
+			console.log("traveTimeMin: " + traveTimeMin);
+			console.log("nextTraveTimeMin: " + nextTraveTimeMin);
+			console.log("transTime: " + transTime);
+			console.log("useTime: " + useTime);
+		    console.log("currentEndTime: " + currentEndTime);
+		    console.log("nextStartTime: " + nextStartTime);
+		    if(traveTimeMin > 240 && traveTimeMin <420){
+		    	
+		    	alert("스케줄 등록 가능시간은 오전7시 ~ 새벽4시 입니다.");
+		    }
+		    
+			// 이전 인덱스의 traveTime + useTime + transTime과 현재 인덱스의 traveTime을 비교하여 조건을 만족하는지 확인
+		    if (currentEndTime >=  nextStartTime) {
+		        // 조건을 만족하는 경우 스케줄 시간이 겹친다는 경고를 출력하고 종료
+		        alert("스케줄 시간이 겹칩니다.");
+		        return;
+		    }
+		}
+		
+				
+		var data = {
+			client : client, traveList : traveList, traveDay : inputDay
+		}
+	
+		
+		$j.ajax({
+		    url : "/travel/saveTraveList.do",
+		    contentType: "application/json",
+		    dataType: "json",
+		    type: "POST",
+		    data : JSON.stringify(data),
+		    success: function(data, textStatus, jqXHR)
+		    {
+		    	var msg = data.success;
+		    	if(msg === "Y"){
+		    		alert("저장에 성공하였습니다.");
+		    		location.href = "/travel/traveManagement.do";	
+		    	}else{
+		    		alert("저장에 실패하였습니다.");			    		
+		    	}
+		    },
+		    error: function (jqXHR, textStatus, errorThrown)
+		    {
+		    	alert("통신오류");
+		    }
+		});	
+		
+	});
+//******************정규식 관련 메소드 *************************************
+	var onlyNum = /[^0-9]/g;
+	$j(document).on("input keydown","input[name='useTime']",function(event){
+		 event.target.value = event.target.value.replace(onlyNum, '');
+	});
+	$j(document).on("input keydown","input[name='transTime']",function(event){
+		 event.target.value = event.target.value.replace(onlyNum, '');
+	});
+	$j(document).on("input keydown","input[name='useExpend']",function(event){
+		 event.target.value = event.target.value.replace(onlyNum, '');
+	});
+	
+//******************html빌드 관련 메소드 **********************************
+	function updateHtml(data){
+		console.log("updateHtml호출!!!");
+		$j("#detailDiv").html(buildTable(data.detailTraveList));
+	}
+	
+	function buildTable(detailTraveList){
+		var html = '';
+		html += '<table align="center">';
+	    html += '<tr>';
+	    html += '<td>';
+	    html += '<input type="button" id="detailAdd" value="추가" style="margin-bottom: 10px"> | ';
+	    html += '<input type="button" id="detailDel" value="삭제" style="margin-bottom: : 10px">';
+	    html += '</td>';
+	    html += '</tr>';
+	    html += '<tr>';
+	    html += '<td>';
+	    html += '<table id="detailTable" border="1">';
+	    html += '<tr>';
+	    html += '<td></td>';
+	    html += '<td>시간</td>';
+	    html += '<td>지역</td>';
+	    html += '<td>장소명</td>';
+	    html += '<td>이용시간(분)</td>';
+	    html += '<td>교통편</td>';
+	    html += '<td>예상이동시간(분)</td>';
+	    html += '<td>이용요금(예상지출비용)</td>';
+	    html += '<td>계획상세</td>';
+	    html += '<td>교통비</td>';
+	    html += '</tr>';
+	    
+	    if (Array.isArray(detailTraveList) && detailTraveList.length > 0) {
+	    	console.log("detailList 있음: else문 돈다.");
+	    	 detailTraveList.forEach(function (item, index) {
+	             html += '<tr id="detailInput' + (index + 1) + '">';
+	             html += '<td>';
+	             html += '<input type="checkbox" name="selection">';
+	             html += '<input type="hidden" name="request" value="' + item.request +'">';
+	             html += '</td>';
+	             html += '<td>';
+	             html += '<input type="time" name="traveTime" value="' + item.traveTime + '">';
+	             html += '</td>';
+	             html += '<td>';
+	             html += '<select id="traveCitySelect' + (index + 1) + '" name="traveCity"></select>';
+	             html += '<input type="hidden" name="traveCity" value="'+ item.traveCity +'">';
+	             html += '<select id="traveCountySelect' + (index + 1) + '" name="traveCounty"></select>';
+	             html += '<input type="hidden" name="traveCounty" value="'+ item.traveCounty +'">';
+	             html += '</td>';
+	             html += '<td>';
+	             html += '<input type="text" name="traveLoc" value="' + item.traveLoc + '">';
+	             html += '</td>';
+	             html += '<td>';
+	             html += '<input type="text" name="useTime" value="' + item.useTime + '">분';
+	             html += '</td>';
+	             html += '<td>';
+	             html += '<select id="traveTransSelect' + (index + 1) + '" name="traveTrans"></select>';
+	             html += '<input type="hidden" name="traveTrans" value="'+ item.traveTrans +'">';
+	             html += '</td>';
+	             html += '<td>';
+	             html += '<input type="text" name="transTime" value="' + item.transTime + '">분';
+	             html += '</td>';
+	             html += '<td>';
+	             html += '<input type="text" name="useExpend" value="' + item.useExpend + '">원';
+	             html += '</td>';
+	             html += '<td>';
+	             html += '<input type="text" name="traveDetail" value="' + item.traveDetail + '">';
+	             html += '</td>';
+	             html += '<td class="transFee">';
+	             html += '</td>';
+	             html += '</tr>';
+	             
+	         });
+	    }
+	    else{
+	    	console.log("detailList 없음: if문 돈다.");
+	        html += '<tr id="detailInput1">';
+	        html += '<td>';
+	        html += '<input type="checkbox" name="selection">';
+	        html += '</td>';
+	        html += '<td>';
+	        html += '<input type="time" name="traveTime">';
+	        html += '</td>';
+	        html += '<td>';
+	        html += '<select id="traveCitySelect1" name="traveCity"></select>';
+	        html += '<select id="traveCountySelect1" name="traveCounty"></select>';
+	        html += '</td>';
+	        html += '<td>';
+	        html += '<input type="text" name="traveLoc">';
+	        html += '</td>';
+	        html += '<td>';
+	        html += '<input type="text" name="useTime">분';
+	        html += '</td>';
+	        html += '<td>';
+	        html += '<select id="traveTransSelect1" name="traveTrans"></select>';
+	        html += '</td>';
+	        html += '<td>';
+	        html += '<input type="text" name="transTime">분';
+	        html += '</td>';
+	        html += '<td>';
+	        html += '<input type="text" name="useExpend">원';
+	        html += '</td>';
+	        html += '<td>';
+	        html += '<input type="text" name="traveDetail">';
+	        html += '</td>';
+	        html += '<td class="transFee">';
+	        html += '</td>';
+	        html += '</tr>';
+	        html += '<tbody id="appendDiv"></tbody>';
+	    }
+	    html += '<tbody id="appendDiv"></tbody>';
+	    html += '</table>';
+	    html += '</td>';
+	    html += '</tr>';
+	    html += '<tr>';
+	    html += '<td align="center">';
+	    html += '<br><input type="button" name="save" value="저장">';
+	    html += '</td></tr></table>';
+	    
+	    return html;
+	}
+	
+	
 //******************주소 select option에 관한 함수 *************************
 	var traveCity = [
 		"서울특별시","부산광역시","대구광역시","인천광역시","광주광역시","대전광역시",
@@ -144,48 +556,87 @@ $j(document).ready(function(){
 		"도보" : "W", "버스" : "B", "지하철" : "S", "택시" : "T", "렌트" : "R", "자차" : "C"	
 	};
 	
-	var citySelect = $j("[id^=traveCitySelect]");
-	var countySelect = $j("[id^=traveCountySelect]");
-	var transSelect = $j("[id^=traveTransSelect]");
-	
-	$j.each(traveCity, function(i,val){
-		var option = $j("<option>").text(val);
-		citySelect.append(option);
-	});
 
-	initializeCounty();
 	
-	$j.each(traveTrans, function(key, val){
-	    var option = $j("<option>").text(key).val(val);
-	    transSelect.append(option);
-	});
 	
-	function updateCounty(countyArray) {    
+	
+	function initializeCity(citySelect){
+		console.log(initialCity);
+		var option = $j("<option>").text(initialCity);
+		citySelect.append(option);		
+	}
+	
+	function setCity(citySelect, savedCity){
+	    
+        var option = $j("<option>").text(savedCity);
+        citySelect.append(option);
+	   
+	}
+	
+	
+	//두번째 select 초기값 설정
+	function initializeCounty(countySelect) {
+	    var defaultCity = initialCity;
+	    var defaultCounty = traveCounty[defaultCity];
+	    
 	    countySelect.empty();
-	    $j.each(countyArray, function (i, val) {
+	    $j.each(defaultCounty, function (i, val) {
 	        var option = $j("<option>").text(val);
+	        countySelect.append(option);
+	    });
+	    
+		console.log("지역 초기화값 설정 함수 호출: " + defaultCity + " " + defaultCounty);
+	}
+	
+	function setCounty(countySelect, savedCity, savedCounty) {
+	    var defaultCity = savedCity;
+	    var defaultCounty = traveCounty[defaultCity];
+	    
+	    countySelect.empty();
+	    $j.each(defaultCounty, function (i, val) {
+	        var option = $j("<option>").text(val).attr('value', val);
+	        if (val === savedCounty) {
+	            option.attr('selected', 'selected');
+	        }
 	        countySelect.append(option);
 	    });
 	}
 	
-	function initializeCounty() {
-	    var defaultCity = "서울특별시";
-	    var defaultCounty = traveCounty[defaultCity];
-	    updateCounty(defaultCounty);
+	function initializeTrans(transSelect) {
+		$j.each(traveTrans, function(key, val){
+		    var option = $j("<option>").text(key).val(val);
+		    transSelect.append(option);
+		});		
 	}
 	
-	$j("[id^=traveCitySelect]").on("change",function(){
+	function setTrans(transSelect, savedTrans) {
+		$j.each(traveTrans, function(key, val){
+		    var option = $j("<option>").text(key).val(val);
+		    if (val === savedTrans) {
+	            option.attr('selected', 'selected');
+	        }
+		    transSelect.append(option);
+		});		
+	}
+	
+	
+	$j(document).on("change","[name=traveCity]",function(){
+		
+		var cityCurrentId = $j(this).attr('id'); 
+		var num = cityCurrentId.replace(/\D/g, '');
+		var numberedCountySelect = $j('#traveCountySelect' + num);
+		
 		var currentCity = $j(this).val();
 	    var countyArray = traveCounty[currentCity];
-
-	    updateCounty(countyArray);
+	    console.log("citySelect값 변화: " + "현재 selectId: " + cityCurrentId + " 현재 도시: " + currentCity );
+	    
+	    numberedCountySelect.empty();
+	    
+	    $j.each(countyArray, function (i, val) {
+	        var option = $j("<option>").text(val);
+	        numberedCountySelect.append(option);
+	    });
 	});
-	//두번째 select 초기값 설정
-	function initializeCounty() {
-	    var defaultCity = "서울특별시";
-	    var defaultCounty = traveCounty[defaultCity];
-	    updateCounty(defaultCounty);
-	}
 //******************대중교통 비용 함수 *****************************
 
 	function taxiFee(traveTime,transTime){
@@ -256,16 +707,91 @@ $j(document).ready(function(){
 		return finalTaxiFee;
 		
 	}
+	
+	function publicTransFee(traveTrans,traveTime,transTime){		
+		//traveTime을 분으로 변환
+		var traveTimeMin = parseInt(traveTime.split(':').reduce((acc, val, index) => index === 0 ? acc + parseInt(val) * 60 : acc + parseInt(val), 0));
+		var transTimeMin = parseInt(transTime);
+		var extraCnt =  Math.floor(transTimeMin/20);
+		//traveTrans값에 의해 버스와 지하철을 구분
+		//traveTrans가 버스인 경우
+		if(traveTrans === "B"){
+			var finalFee = 1400 + extraCnt * 200;
+			return finalFee;
+		}
+		//traveTrans가 지하철인 경우
+		else{
+			var finalFee = 1450 + extraCnt * 200;
+			return finalFee;
+		}
+		
+	}
 //****************교통비 출력 함수 ********************************
-	$j("select[name='traveTrans'],input[name='transTime'],input[name='traveTime']").on("change",function(){
+	$j(document).on("change","select[name='traveTrans'],input[name='transTime'],input[name='traveTime']",function(){
 		var traveTrans = $j(this).closest('tr').find('select[name="traveTrans"]').val();
 		var traveTime = $j(this).closest('tr').find('input[name="traveTime"]').val();
 		var transTime = $j(this).closest('tr').find('input[name="transTime"]').val();
 		console.log("traveTrans: " + traveTrans);
-		if(traveTrans === "T"){
-			if(traveTime !== undefined && transTime !== undefined){
-				taxiFee(traveTime,transTime);			
-			}			
+		console.log("traveTime: " + traveTime);
+		console.log("transTime: " + transTime);
+		//traveTrans가 택시일 경우
+		$j(this).closest('tr').find('td.transFee').html('');
+		
+		if(traveTime !== "" && transTime !== "" && traveTrans !== undefined){
+			if(traveTrans === "T"){		
+				var finalFee = taxiFee(traveTime,transTime) + "원";
+				$j(this).closest('tr').find('td.transFee').append(finalFee);					
+			}
+			//taveTrans가 버스 또는 지하철일 경우
+			if(traveTrans === "B" || traveTrans === "S"){
+				var finalFee = publicTransFee(traveTrans,traveTime,transTime) + "원";
+				$j(this).closest('tr').find('td.transFee').append(finalFee);
+			}
+		}	
+	});
+//****************상세 스케줄 행 추가 **********************************
+	$j(document).on("click","#detailAdd",function(){
+		rowCnt ++;
+		console.log("행 추가 클릭 행 갯수: " + rowCnt);
+		var clonedRow = $j("[id^=detailInput]:first").clone();
+		
+		console.log("clonedRow: " + JSON.stringify(clonedRow));
+		clonedRow.attr("id","detailInput" + rowCnt);
+		clonedRow.find("[name='selection']").prop("checked",false);
+		clonedRow.find("input").val('');
+		clonedRow.find(".transFee").html('');
+		
+		var newCitySelectId = "traveCitySelect" + rowCnt;
+	    var newCountySelectId = "traveCountySelect" + rowCnt;
+		
+		clonedRow.find('[id^="traveCitySelect"]').attr('id',newCitySelectId);
+		clonedRow.find('[id^="traveCountySelect"]').attr('id',newCountySelectId);
+		
+		console.log("newCountySelectId: " + newCountySelectId);
+			
+		clonedRow.appendTo("#appendDiv").show();
+		initializeCounty($j("#" + newCountySelectId));
+		
+	});
+//**************상세 스케줄 행 삭제 ************************************
+	$j(document).on("click","#detailDel",function(){
+		
+		console.log("행 삭제 클릭, 행 갯수: " + rowCnt);
+		var checkedIds = [];
+		$j("[type='checkbox']").each(function(){
+			if($j(this).is(":checked")){
+				var rowId = $j(this).closest("tr").attr("id");
+				checkedIds.push(rowId);
+			}
+		});
+		console.log("체크 행 갯수: " + checkedIds.length);
+		if(rowCnt > checkedIds.length){
+			checkedIds.forEach(function(rowId){
+				$j("#" + rowId).remove();
+				rowCnt --;
+			});
+		}else{
+			alert("최소 1개 이상의 행이 존재해야 합니다.");
 		}
 	});
 	
@@ -273,7 +799,9 @@ $j(document).ready(function(){
 </script>
 <body>
 <h1 style="text-align: center">여행 일정 관리</h1>
+
 <table align="center">
+
 	<tr>
 		<td>
 			<table border="1" id="clientTable">
@@ -288,98 +816,57 @@ $j(document).ready(function(){
 				</tr>
 				<c:forEach items="${clientList }" var="list" varStatus="loop">
 				
-				<tr>
+				<tr id="clientRow${loop.index +1}">
 					<td style="display: none">
 						<input type="hidden" name="seq" value="${list.seq }">
 					</td>
-					<td id="clientName${loop.index +1 }">${list.userName }</td>
-					<td>${list.userPhone }</td>
-					<td>${list.traveCity }</td>
-					<td>${list.period }</td>
-					<c:choose>
-						<c:when test="${list.transport eq 'R'}">
-							<td>렌트</td>				
-						</c:when>
-						<c:when test="${list.transport eq 'B'}">
-							<td>대중교통</td>				
-						</c:when>
-						<c:when test="${list.transport eq 'C'}">
-							<td>자차</td>				
-						</c:when>
-					</c:choose>
-					<td>${list.expend }</td>
-					<td></td>
+					<td id="clientName${loop.index +1 }">
+						${list.userName }<input type="hidden" name="userName" value="${list.userName }">
+					</td>
+					<td>
+						${list.userPhone }<input type="hidden" name="userPhone" value="${list.userPhone }">
+					</td>
+					<td>
+						${list.traveCity }<input type="hidden" name="traveCity" value="${list.traveCity }">
+					</td>
+					<td>
+						${list.period }<input type="hidden" name="period" value="${list.period }">
+					</td>
+					<td>
+						<c:choose>
+							<c:when test="${list.transport eq 'R'}">
+								렌트		
+							</c:when>
+							<c:when test="${list.transport eq 'B'}">
+								대중교통			
+							</c:when>
+							<c:when test="${list.transport eq 'C'}">
+								자차		
+							</c:when>
+						</c:choose>
+						<input type="hidden" name="transport" value="${list.transport }">					
+					</td>
+					<td>
+						${list.expend }<input type="hidden" name="expend" value="${list.expend }">
+					</td>
+					<td>
+						${list.estimatedExpenses }
+					</td>
 				</tr>
 				</c:forEach>
 			</table>
 		</td>
 	</tr>
+	<tr>
+		<td><a href="/travel/login.do">로그인 페이지로 이동</a></td>
+	</tr>
 </table>
-<div id="periodDiv"></div>
+
+<br/>
+<div id="periodDiv" style="padding-left: 100px;padding-right: 100px; padding-bottom: 10px"></div>
+
 <div id="detailDiv">
-	<table align="center">
-		<tr>
-			<td>
-			<table border="1">
-				<tr>
-					<td></td>
-					<td>시간</td>
-					<td>지역</td>
-					<td>장소명</td>
-					<td>교통편</td>
-					<td>예상이동시간</td>
-					<td>이용요금(예상지출비용)</td>
-					<td>계획상세</td>
-					<td>교통비</td>
-				</tr>
-				<!--detailTraveList 가 비어있는 경우  -->
-				<c:if test="${detailTraveList eq null }">
-					<tr>
-						<td>
-							<input type="checkbox" name="selection">
-						</td>
-						<td>
-							<input type="time" name="traveTime">
-						</td>
-						<td>
-							<select id="traveCitySelect1" name="traveCity"></select>
-							<select id="traveCountySelect1" name="traveCounty"></select>
-						</td>
-						<td>
-							<input type="text" name="traveLoc">
-						</td>
-						<td>
-							<select id="traveTransSelect1" name="traveTrans"></select>
-						</td>
-						<td>
-							<input type="text" name="transTime">
-						</td>
-						<td>
-							<input type="text" name="useExpend">
-						</td>
-						<td>
-							<input type="text" name="traveDetail">
-						</td>
-						<td>
-							
-						</td>
-						
-					</tr>
-				</c:if>
-				<!--detailTraveList에 값이 존재하는 경우  -->
-				<c:if test="${detailTraveList eq not null }">
-					<c:forEach items="${detailTraveList }" var="list" varStatus="loop">
-						<tr id="detailInput${loop.index +1 }">
-							<td>
-								<input type="checkbox" name="selection">
-							</td>
-						</tr>				
-					</c:forEach>				
-				</c:if>
-			</table>
-			</td>
-		</tr>
-	</table>
+	
 </div>
 </body>
 </html>

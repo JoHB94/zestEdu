@@ -1090,12 +1090,11 @@
 		</tr>
 		<tr>
 			<td><h2>자격증</h2></td>
-		</tr>
-		
+		</tr>		
 		<tr>
 			<td align="right">
-			<input type="button" id="certificateAdd" value="추가">
-			<input type="button" id="certificateDel" value="삭제">
+				<input type="button" id="certificateAdd" value="추가">
+				<input type="button" id="certificateDel" value="삭제">
 			</td>
 		</tr>
 		<tr>

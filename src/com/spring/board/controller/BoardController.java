@@ -51,48 +51,62 @@ public class BoardController {
 		
 		int page = 1;
 		int totalCnt = 0;
+		int endPage = 0;
+		int showPage = 5;
 		
 		if(pageVo.getPageNo() == 0){
 			pageVo.setPageNo(page);;
 		}
 		
 		boardList = boardService.SelectBoardList(pageVo);
-		totalCnt = boardService.selectBoardCnt();
+		totalCnt = boardService.selectBoardCnt() -20;
+		endPage = (int) Math.ceil((double)totalCnt/10);
 		cdif = boardService.selectMenuInfo();
+		System.out.println("endPage: " + boardList.get(0).getEndPage());
+		System.out.println("showPage: " + showPage + " endPage: " + endPage);
 		
 		model.addAttribute("boardList", boardList);
 		model.addAttribute("code", cdif);
 		model.addAttribute("totalCnt", totalCnt);
-		model.addAttribute("pageNo", page);
+		model.addAttribute("showPage", showPage);
+		model.addAttribute("currentPage", page);
+		model.addAttribute("endPage", endPage);
 		
 		return "board/boardList";
 	}
 	
 	@RequestMapping(value = "/board/boardListByBoardType.do", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<HashMap<String,Object>> boardListByBoardType(Locale locale,PageVo pageVo
-			,@RequestParam List<String> boardTypes) throws Exception{
+	public ResponseEntity<HashMap<String,Object>> boardListByBoardType(Locale locale,PageVo pageVo) throws Exception{
 		
 		HashMap<String, Object> result = new HashMap<String, Object>();
 		
-		pageVo.setBoardTypes(boardTypes);
+		//pageVo.setBoardTypes(boardTypes);
 		System.out.println("Types : " + pageVo.toString());
 		
-		int page = 1;
+		int page = pageVo.getPageNo();
 		int totalCnt = 0;
+		int endPage = 0;
+		int showPage = 5;
 		
 		if(pageVo.getPageNo() == 0){
-			pageVo.setPageNo(page);;
+			pageVo.setPageNo(page);
 		}
 		
 		List<BoardVo> boardList = boardService.selectBoardListByBoardType(pageVo);
+		
 		if(boardList.size() != 0) {
-			totalCnt = boardList.get(0).getTotalCnt();			
+			totalCnt = boardList.get(0).getTotalCnt();
+			
+			endPage = (int) Math.ceil((double)totalCnt/10);
 		}
+		System.out.println("showPage: " + showPage + "endPage: " + endPage);
 		
 		result.put("boardList", boardList);
 		result.put("totalCnt", totalCnt);
-		result.put("pageNo", page);
+		result.put("showPage", showPage);
+		result.put("currentPage", page);
+		result.put("endPage", endPage);
 				
 		return new ResponseEntity<HashMap<String,Object>>(result,HttpStatus.OK);
 	}

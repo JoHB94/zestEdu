@@ -4,22 +4,23 @@ import java.util.List;
 
 public class TraveDTO {
 	
-	private ClientInfoVo celient;
+	private ClientInfoVo client;
 	private List<TraveInfoVo> traveList;
 	private String traveDay;
 	
+	public ClientInfoVo getClient() {
+		return client;
+	}
+	public void setClient(ClientInfoVo client) {
+		this.client = client;
+	}
 	public String getTraveDay() {
 		return traveDay;
 	}
 	public void setTraveDay(String traveDay) {
 		this.traveDay = traveDay;
 	}
-	public ClientInfoVo getCelient() {
-		return celient;
-	}
-	public void setCelient(ClientInfoVo celient) {
-		this.celient = celient;
-	}
+
 	public List<TraveInfoVo> getTraveList() {
 		return traveList;
 	}
@@ -28,10 +29,7 @@ public class TraveDTO {
 	}
 	@Override
 	public String toString() {
-		return "TraveDTO [celient=" + celient + ", traveList=" + traveList + ", traveDay=" + traveDay + "]";
+		return "TraveDTO [client=" + client + ", traveList=" + traveList + ", traveDay=" + traveDay + "]";
 	}
-	
-	
-	
 
 }

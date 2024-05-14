@@ -11,6 +11,7 @@
 	</resultMap>
 	
 	<resultMap type="com.spring.board.vo.TraveInfoVo" id="traveInfoVo">
+		<result property="traveSeq" column="TRAVE_SEQ"/>
 		<result property="seq" column="SEQ"/>
 		<result property="traveDay" column="TRAVE_DAY"/>
 		<result property="traveTime" column="TRAVE_TIME"/>
@@ -21,8 +22,14 @@
 		<result property="transTime" column="TRANS_TIME"/>
 		<result property="useTime" column="USE_TIME"/>
 		<result property="useExpend" column="USE_EXPEND"/>
-		<result property="travelDetail" column="TRAVE_DETAIL"/>
+		<result property="traveDetail" column="TRAVE_DETAIL"/>
 		<result property="request" column="REQUEST"/>
+	</resultMap>
+	<resultMap type="com.spring.board.vo.TraveClientInfoDTO" id="traveClientInfoDTO">
+		<result property="period" column="PERIOD"/>
+		<result property="traveTime" column="TRAVE_TIME"/>
+		<result property="transTime" column="TRANS_TIME"/>
+		<result property="traveTrans" column="TRAVE_TRANS"/>
 	</resultMap>
 
 	<select id="getSeq" parameterType="com.spring.board.vo.ClientInfoVo" resultType="String">
@@ -34,6 +41,7 @@
 			USER_NAME = #{userName} AND
 			USER_PHONE = #{userPhone}
 	</select>
+
 	<insert id="insertClient" parameterType="com.spring.board.vo.ClientInfoVo">
 		INSERT INTO
 		CLIENT_INFO
@@ -107,17 +115,17 @@
 		(
 		SELECT
 			(SELECT NVL(TO_NUMBER(MAX(TO_NUMBER(TRAVE_SEQ))+#{index} +1),#{index}+1) FROM TRAVE_INFO),
-			#{seq},
-			#{traveDay},
-			#{traveTime},
-			#{traveCity},
-			#{traveCounty},
-			#{traveLoc},
-			#{traveTrans},
-			#{transTime},
-			#{useTime},
-			#{useExpend},
-			#{travelDetail},
+			#{item.seq},
+			#{item.traveDay},
+			#{item.traveTime},
+			#{item.traveCity},
+			#{item.traveCounty},
+			#{item.traveLoc},
+			#{item.traveTrans},
+			#{item.transTime},
+			#{item.useTime,jdbcType=VARCHAR},
+			#{item.useExpend},
+			#{item.traveDetail},
 			'C'
 		FROM
 			DUAL
@@ -133,16 +141,37 @@
 			USER_NAME = #{userName} AND
 			USER_PHONE = #{userPhone}
 	</select>
-	<update id="updateRequest" parameterType="Integer">
+	<update id="updateRequest" parameterType="String">
 		UPDATE
 			TRAVE_INFO
 		SET
 			REQUEST = 'M'
 		WHERE
-			SEQ = #{seq}
+			TRAVE_SEQ = #{traveSeq}
 	</update>
 	
+	<select id="selectSumExpend" parameterType="com.spring.board.vo.ClientInfoVo" resultType="String">
+		SELECT
+			SUM(USE_EXPEND) AS TOTAL_EXPEND
+		FROM
+			TRAVE_INFO
+		WHERE
+			SEQ = #{seq}
+	</select>
 	
+	<select id="getTraveClient" parameterType="com.spring.board.vo.ClientInfoVo" resultMap="traveClientInfoDTO">
+		SELECT
+			C.PERIOD,
+			C.TRANSPORT,
+			T.TRAVE_TIME,
+			T.TRANS_TIME,
+			T.TRAVE_TRANS
+		FROM
+			TRAVE_INFO T JOIN
+			CLIENT_INFO C ON T.SEQ = C.SEQ
+		WHERE
+			C.SEQ = #{seq}
+	</select>
 	
 	
 	

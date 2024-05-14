@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.spring.board.dao.TravelDao;
 import com.spring.board.vo.ClientInfoVo;
+import com.spring.board.vo.TraveClientInfoDTO;
 import com.spring.board.vo.TraveInfoVo;
 
 @Repository
@@ -65,9 +66,21 @@ public class TravelDaoImpl implements TravelDao{
 	}
 
 	@Override
-	public int updateRequest(int seq) throws Exception {
+	public int updateRequest(String seq) throws Exception {
 		// TODO Auto-generated method stub
 		return sqlSession.update("travel.updateRequest", seq);
+	}
+
+	@Override
+	public String selectSumExpend(ClientInfoVo clientInfoVo) throws Exception {
+		// TODO Auto-generated method stub
+		return sqlSession.selectOne("travel.selectSumExpend", clientInfoVo);
+	}
+
+	@Override
+	public List<TraveClientInfoDTO> getTCList(ClientInfoVo clientInfoVo) throws Exception {
+		// TODO Auto-generated method stub
+		return sqlSession.selectList("travel.getTraveClient", clientInfoVo);
 	}
 
 }

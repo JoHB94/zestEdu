@@ -62,6 +62,7 @@ $j(document).ready(function(){
 </script>
 <body>
 <form class="loginForm">
+<h1 style="text-align: center">로그인</h1>
 	<table align="center">
 		<tr>
 			<td>
@@ -85,6 +86,7 @@ $j(document).ready(function(){
 		<tr>
 			<td align="center">
 			<input id="login" type="button" value="로그인"/>
+			<a href="/travel/traveManagement.do">여행 일정 관리</a>
 			</td>
 		</tr>
 	</table>

@@ -1,10 +1,10 @@
-<%@ page language="java" contentType="text/html; charset=EUC-KR"
-    pageEncoding="EUC-KR"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <%@include file="/WEB-INF/views/common/common.jsp"%>    
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
+<meta>
 <title>boardWrite</title>
 </head>
 <script type="text/javascript">
@@ -16,7 +16,7 @@
 			var $frm = $j('.boardWrite :input');
 			var param = $frm.serialize();
 			console.log("param : " + param);
-			//serialize():Äõ¸®½ºÆ®¸µÀ¸·Î ¸¸µé¾îÁÜ
+			//serialize():ì¿¼ë¦¬ìŠ¤íŠ¸ë§ìœ¼ë¡œ ë§Œë“¤ì–´ì¤Œ
 			$j.ajax({
 			    url : "/board/boardWriteAction.do",
 			    dataType: "json",
@@ -24,15 +24,15 @@
 			    data : param,
 			    success: function(data, textStatus, jqXHR)
 			    {
-					alert("ÀÛ¼º¿Ï·á");
+					alert("ì‘ì„±ì™„ë£Œ");
 					
-					alert("¸Ş¼¼Áö:"+data.success);
+					alert("ë©”ì„¸ì§€:"+data.success);
 					
 					location.href = "/board/boardList.do";
 			    },
 			    error: function (jqXHR, textStatus, errorThrown)
 			    {
-			    	alert("½ÇÆĞ");
+			    	alert("ì‹¤íŒ¨");
 			    }
 			});	
 		});
@@ -46,7 +46,7 @@
 	<table align="center">
 		<tr>
 			<td align="right">
-			<input id="submit" type="button" value="ÀÛ¼º">
+			<input id="submit" type="button" value="ì‘ì„±">
 			</td>
 		</tr>
 		<tr>
